@@ -53,7 +53,7 @@ GLuint Program::ReturnProgramID() const
     return programID;
 }
 
-//this function return the handle of arrribute variable
+//this function return the handle of attribute variable
 GLint Program::attrib(const GLchar* attribName) const
 {
     if(!attribName)
