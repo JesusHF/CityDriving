@@ -1,14 +1,13 @@
 
 /***************************************************************************************
 
-    CarGL (Objects.h)
+    ForestDriving (main.cpp)
 
-    Grado en Ingeniería Multimedia.
-    Práctica de Gráficos por Computador.
-    OpenGL con Shaders.
+    Computer Graphics project.
+    OpenGL with Shaders
   --------------------------------------------------------------------------------------
 
-    Noviembre 2012 - Septiembre 2016 (C) Juan Antonio Puchol García (puchol@dccia.ua.es)
+    ForestDriving (C) 2017
 
 ****************************************************************************************/
 

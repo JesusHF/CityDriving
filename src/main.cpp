@@ -1,41 +1,19 @@
 
 /****************************************************************************************************
 
-    CarGL (main.cpp)
+    ForestDriving (main.cpp)
 
-    Grado en Ingeniería Multimedia.
-    Práctica de Gráficos por Computador.
-    OpenGL con Shaders.
+    Computer Graphics project.
+    OpenGL with Shaders
   ------------------------------------------------------------------------------------------
 
-    CarsGL (C) 2012-2016 - Juan Antonio Puchol García (puchol@dccia.ua.es)
+    ForestDriving (C) 2017
 
-    Changelog:
-
-    Versión 1.0 (Noviembre 2012)
-        - Versión inicial para Code::Blocks 10.05
-
-    Versión 1.1 (Noviembre 2012)
-        - Arreglado el bug de selección incorrecta debido al panel inferior de controles
-
-    Versión 1.2 (Octubre 2013 )
-        - Adaptación de la librería GLUI a Code::Blocks 12.11 y 13.12
-
-    Versión 1.3 (Octubre 2014 )
-        - Adaptación de la librería GLUI a Code::Blocks 13.12
-
-    Versión 2.0 (Octubre 2015 )
-        - Adaptación del código empleando Shaders (Modern OpenGL Graphics)
-
-    Versión 2.1 (Septiembre 2016 )
-        - Modificación de los scrollbars de las luces para manipular la posisión (compatible con Code::Blocks 16.01)
-
-    NOTA:   Para que esta aplicación compile se necesita tener copiados los
-            siguientes ficheros desde la carpeta "Para Copiar":
+    NOTA:   In order of this application to compile, you will need the next project structure
 
             glut32.dll  -> C:\Windows\system
 
-            Si es un Windows de 32 bits:
+            Windows 32 bits:
             glew32s.lib -> C:\Program Files\CodeBlocks\MinGW\lib
             glew32.lib  -> C:\Program Files\CodeBlocks\MinGW\lib
             libglui32.a -> C:\Program Files\CodeBlocks\MinGW\lib
@@ -45,10 +23,9 @@
             glut.h      -> C:\Program Files\CodeBlocks\MinGW\include\GL
             glew.h      -> C:\Program Files\CodeBlocks\MinGW\include\GL
 
-            y la carpeta completa
             glm         -> C:\Program Files\CodeBlocks\MinGW\include
 
-            Si es un Windows de 64 bits:
+            Windows 64 bits:
             glew32s.lib -> C:\Program Files (x86)\CodeBlocks\MinGW\lib
             glew32.lib  -> C:\Program Files (x86)\CodeBlocks\MinGW\lib
             libglui32.a -> C:\Program Files (x86)\CodeBlocks\MinGW\lib
@@ -58,7 +35,6 @@
             glut.h      -> C:\Program Files (x86)\CodeBlocks\MinGW\include\GL
             glew.h      -> C:\Program Files (x86)\CodeBlocks\MinGW\include\GL
 
-            y la carpeta completa
             glm         -> C:\Program Files (x86)\CodeBlocks\MinGW\include
 
 
@@ -97,11 +73,11 @@ static void SpecialKey(int key, int x, int y)
 
     switch (key)
     {
-        case GLUT_KEY_UP:   // El coche avanza
+        case GLUT_KEY_UP:   // Car goes straight
             car->rr+=8;
             car->tz += 0.05;
             break;
-        case GLUT_KEY_DOWN:   // El coche retrocede
+        case GLUT_KEY_DOWN:   // Car goes back
             car->rr-=8;
             car->tz -= 0.05;
             break;
@@ -144,7 +120,7 @@ void Motion(int x, int y){
 
 int main(int argc, char* argv[])
 {
-    // Inicializa GLUT and crea la ventana principal
+    // Initialize GLUT and create main window
     glutInit(&argc, argv);
     glutInitDisplayMode( GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH | GLUT_STENCIL | GLUT_MULTISAMPLE );
     glutInitWindowPosition( 50, 50 );
@@ -152,7 +128,7 @@ int main(int argc, char* argv[])
 
     int main_window = glutCreateWindow( "CarGL V2.0 (2015) con Shaders" );
 
-    // Inicializa los valores de OpenGL para esta Aplicación
+    // Initialize OpenGL values for this Application
     escena.InitGL();
     gui.Init(main_window);
 
@@ -166,7 +142,7 @@ int main(int argc, char* argv[])
     /**** We register the idle callback with GLUI, *not* with GLUT ****/
     GLUI_Master.set_glutIdleFunc( Idle );
 
-    // Crea los objetos
+    // Create objects
     TPrimitiva *road = new TPrimitiva(CARRETERA_ID, CARRETERA_ID);
     TPrimitiva *car1 = new TPrimitiva(1, COCHE_ID);
     TPrimitiva *car2 = new TPrimitiva(2, COCHE_ID);

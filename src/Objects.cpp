@@ -1,15 +1,13 @@
 
 /****************************************************************************************
 
-    CarGL (Objects.cpp)
+    ForestDriving (Objects.cpp)
 
-    Grado en Ingeniería Multimedia.
-    Práctica de Gráficos por Computador.
-    OpenGL con Shaders.
+    Computer Graphics project.
+    OpenGL with Shaders
   ---------------------------------------------------------------------------------------
 
-    Noviembre 2012 - Septiembre 2016 (C) Juan Antonio Puchol García (puchol@dccia.ua.es)
-
+    ForestDriving (C) 2017
 
 *****************************************************************************************/
 
@@ -64,8 +62,8 @@ TPrimitiva::TPrimitiva(int DL, int t)
 
             //************************ Cargar modelos 3ds ***********************************
             // formato 8 floats por vértice (x, y, z, A, B, C, u, v)
-            modelo0 = Load3DS("../../models/Road.3ds", &num_vertices0);
-            modelo1 = Load3DS("../../models/Lines.3ds", &num_vertices1);
+            modelo0 = Load3DS("../../models/initial_Road.3ds", &num_vertices0);
+            modelo1 = Load3DS("../../models/initial_Lines.3ds", &num_vertices1);
 
             break;
 		}
@@ -80,8 +78,10 @@ TPrimitiva::TPrimitiva(int DL, int t)
 
             //************************ Cargar modelos 3ds ***********************************
             // formato 8 floats por vértice (x, y, z, A, B, C, u, v)
-            modelo0 = Load3DS("../../models/FordF250.3ds", &num_vertices0);
-            modelo1 = Load3DS("../../models/RuedaFord.3ds", &num_vertices1);
+            //modelo0 = Load3DS("../../models/initial_FordF250.3ds", &num_vertices0);
+            //modelo1 = Load3DS("../../models/initial_RuedaFord.3ds", &num_vertices1);
+            modelo0 = Load3DS("../../models/coche_salchicha.3ds", &num_vertices0);
+            modelo1 = Load3DS("../../models/rueda.3ds", &num_vertices1);
             break;
 		}
 	} // switch
