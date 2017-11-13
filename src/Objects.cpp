@@ -7,7 +7,7 @@
     OpenGL with Shaders
   ---------------------------------------------------------------------------------------
 
-    ForestDriving (C) 2017
+    ForestDriving (CC) 2017
 
 *****************************************************************************************/
 
@@ -16,7 +16,16 @@
 
 #include "load3ds.c"
 
-// Variable para inicializar los vectores correpondientes con los valores iniciales
+//Wheel placing variables to match car
+#define left_h      0.04
+#define right_h     0.14
+#define x_left      0.03
+#define x_right     -0.15
+#define zdistance   1.1
+
+#pragma GCC diagnostic ignored "-Wwrite-strings"
+
+// Variable for initializing vectors with initials values
 GLfloat light0_ambient_c[4]  = {   0.2f,   0.2f,  0.2f, 1.0f };
 GLfloat light0_diffuse_c[4]  = {   0.8f,   0.8f,  0.8f, 1.0f };
 GLfloat light0_specular_c[4] = {   1.0f,   1.0f,  1.0f, 1.0f };
@@ -32,185 +41,231 @@ GLfloat mat_diffuse_c[4]    = { 0.8f, 0.8f, 0.8f, 1.0f };
 GLfloat mat_specular_c[4]   = { 1.0f, 1.0f, 1.0f, 1.0f };
 GLfloat mat_shininess_c[1] = { 100.0f };
 
-// Matriz de 4x4 = (I)
+// 4x4 Matrix = (I)
 float view_rotate_c[16] = { 1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1 };
 float view_position_c[3] = { 0.0, -2.0, -9.0 };
 
-float coloresc_c[2][4] = { {0.8, 0.5, 0.0, 1.0}, {0.5, 0.5, 0.5, 1.0}}; // Color del coche
-float coloresr_c[2][4] = { {0.3, 0.3, 0.3, 1.0}, {1.0, 1.0, 1.0, 1.0}}; // Color de la carretera
+float colorsc_c[2][4] = { {0.8, 0.5, 0.0, 1.0}, {0.5, 0.5, 0.5, 1.0}}; // Car color
+float colorsr_c[2][4] = { {0.3, 0.3, 0.3, 1.0}, {1.0, 1.0, 1.0, 1.0}}; // Road color
 
-//************************************************************** Variables de clase
+//************************************************************** Class Variables
 
-TEscena escena;
+TScene scene;
 TGui    gui;
 
-//************************************************************** Clase TPrimitiva
+//************************************************************** TPrimitive Class
 
-TPrimitiva::TPrimitiva(int DL, int t)
+TPrimitive::TPrimitive(int DL, int t)
 {
 
     ID   = DL;
-    tipo = t;
+    type = t;
 
     sx = sy = sz = 1;
     rx = ry = rz = 0;
-	switch (tipo) {
-		case CARRETERA_ID: {  // Creación de la carretera
+	switch (type) {
+		case ROAD_ID: {  // Road creation
 		    tx = ty = tz = 0;
 
-            memcpy(colores, coloresr_c, 8*sizeof(float));
+            memcpy(colors[0], colorsr_c, 8*sizeof(float));
 
-            //************************ Cargar modelos 3ds ***********************************
-            // formato 8 floats por vértice (x, y, z, A, B, C, u, v)
-            modelo0 = Load3DS("../../models/initial_Road.3ds", &num_vertices0);
-            modelo1 = Load3DS("../../models/initial_Lines.3ds", &num_vertices1);
+            //************************ Loading 3ds models ***********************************
+            // 8 floats format per vertex (x, y, z, A, B, C, u, v)
+            model0 = Load3DS("../../models/carretera.3ds", &num_vertex0);
 
             break;
 		}
-		case COCHE_ID: { // Creación del coche
+		case CAR_ID: { // Car creation
 
 		    tx = -2.0;
 		    ty =  0.0;
 		    tz =  0.0;
 		    rr =  0.0;
 
-		    memcpy(colores, coloresc_c, 8*sizeof(float));
+		    memcpy(colors, colorsc_c, 8*sizeof(float));
 
-            //************************ Cargar modelos 3ds ***********************************
-            // formato 8 floats por vértice (x, y, z, A, B, C, u, v)
-            //modelo0 = Load3DS("../../models/initial_FordF250.3ds", &num_vertices0);
-            //modelo1 = Load3DS("../../models/initial_RuedaFord.3ds", &num_vertices1);
-            modelo0 = Load3DS("../../models/coche_salchicha.3ds", &num_vertices0);
-            modelo1 = Load3DS("../../models/rueda.3ds", &num_vertices1);
+            //************************ Loading 3ds models ***********************************
+            // 8 floats format per vertex (x, y, z, A, B, C, u, v)
+            model0 = Load3DS("../../models/coche_salchicha.3ds", &num_vertex0);
+            model1 = Load3DS("../../models/rueda.3ds", &num_vertex1);
+            break;
+		}
+
+		case PLATFORM_ID: { // Platform
+
+		    tx = ty = tz = 0;
+		    //ry = 1;
+
+		    memcpy(colors, colorsc_c, 8*sizeof(float));
+
+            //************************ Loading 3ds models ***********************************
+            // 8 floats format per vertex (x, y, z, A, B, C, u, v)
+            model0 = Load3DS("../../models/plataforma.3ds", &num_vertex0);
             break;
 		}
 	} // switch
 }
 
-void __fastcall TPrimitiva::Render(int seleccion, bool reflejo)
+void __fastcall TPrimitive::Render(int selection, bool reflex)
 {
     glm::mat4   modelMatrix;
     glm::mat4   modelViewMatrix;
-    switch (tipo) {
+    switch (type) {
 
-        case CARRETERA_ID: {
-            if (escena.show_road) {
-                // Cálculo de la ModelView
+        case ROAD_ID: {
+            if (scene.show_road) {
+
+                // ModelView calculation
+                modelMatrix     = glm::mat4(1.0f); // identity matrix
+                modelViewMatrix = scene.viewMatrix * modelMatrix;
+
+                // send ModelView to Vertex Shader
+                glUniformMatrix4fv(scene.uMVMatrixLocation, 1, GL_FALSE, &modelViewMatrix[0][0]);
+
+                // draw road
+                glUniform4fv(scene.uColorLocation, 1, colors[0]);
+
+                // associate vertex and its normals
+                glVertexAttribPointer(scene.aPositionLocation, POSITION_COMPONENT_COUNT, GL_FLOAT, false, STRIDE, model0);
+                glVertexAttribPointer(scene.aNormalLocation, NORMAL_COMPONENT_COUNT, GL_FLOAT, false, STRIDE, model0+3);
+
+                glDrawArrays(GL_TRIANGLES, 0, num_vertex0);
+
+            }
+            break;
+        }
+        case CAR_ID: {
+
+            if (scene.show_car) {
+                glUniform4fv(scene.uColorLocation, 1, (const GLfloat *) colors[0]);
+
+                // associate vertex and its normals
+                glVertexAttribPointer(scene.aPositionLocation, POSITION_COMPONENT_COUNT, GL_FLOAT, false, STRIDE, model0);
+                glVertexAttribPointer(scene.aNormalLocation, NORMAL_COMPONENT_COUNT, GL_FLOAT, false, STRIDE, model0+3);
+
+                // Matrix model calculation
+                modelMatrix     = glm::mat4(1.0f); // identity matrix
+                modelMatrix     = glm::translate(modelMatrix,glm::vec3(tx, ty, tz));
+
+                modelViewMatrix = scene.viewMatrix * modelMatrix;
+
+                // send ModelView to Vertex Shader
+                glUniformMatrix4fv(scene.uMVMatrixLocation, 1, GL_FALSE, &modelViewMatrix[0][0]);
+
+                glDrawArrays(GL_TRIANGLES, 0, num_vertex0);
+            }
+
+
+            if (scene.show_wheels)
+            {
+                glUniform4fv(scene.uColorLocation, 1, (const GLfloat *) colors[1]);
+
+                // associate vertex and its normals
+                glVertexAttribPointer(scene.aPositionLocation, POSITION_COMPONENT_COUNT, GL_FLOAT, false, STRIDE, model1);
+                glVertexAttribPointer(scene.aNormalLocation, NORMAL_COMPONENT_COUNT, GL_FLOAT, false, STRIDE, model1+3);
+
+                // TOP LEFT WHEEL : Matrix model calculation
+                modelMatrix     = glm::mat4(1.0f); // identity matrix
+
+                modelMatrix     = glm::translate(modelMatrix, glm::vec3(tx+x_left, ty+left_h, tz));
+                modelMatrix     = glm::rotate(modelMatrix, (float) glm::radians(rr), glm::vec3(1,0,0));      // radians
+
+                modelViewMatrix = scene.viewMatrix * modelMatrix;
+
+                // send ModelView to Vertex Shader
+                glUniformMatrix4fv(scene.uMVMatrixLocation, 1, GL_FALSE, &modelViewMatrix[0][0]);
+
+                glDrawArrays(GL_TRIANGLES, 0, num_vertex1);
+
+                // TOP RIGHT WHEEL : Matrix model calculation
+                modelMatrix     = glm::mat4(1.0f); // identity matrix
+                modelMatrix     = glm::translate(modelMatrix, glm::vec3(tx-x_right, ty+right_h, tz));
+                modelMatrix     = glm::rotate(modelMatrix, (float) glm::radians(rr), glm::vec3(1,0,0));
+                modelMatrix     = glm::rotate(modelMatrix, (float) glm::radians(180.0), glm::vec3(0,0,1));   // radians
+
+                modelViewMatrix = scene.viewMatrix * modelMatrix;
+
+                // send ModelView to Vertex Shader
+                glUniformMatrix4fv(scene.uMVMatrixLocation, 1, GL_FALSE, &modelViewMatrix[0][0]);
+
+                glDrawArrays(GL_TRIANGLES, 0, num_vertex1);
+
+                // BOT LEFT WHEEL: Matrix model calculation
+                modelMatrix     = glm::mat4(1.0f); // identity matrix
+
+                modelMatrix     = glm::translate(modelMatrix, glm::vec3(tx+x_left, ty+left_h, tz-zdistance));
+                modelMatrix     = glm::rotate(modelMatrix, (float) glm::radians(rr), glm::vec3(1,0,0));      // radians
+
+                modelViewMatrix = scene.viewMatrix * modelMatrix;
+
+                // send ModelView to Vertex Shader
+                glUniformMatrix4fv(scene.uMVMatrixLocation,1, GL_FALSE, &modelViewMatrix[0][0]);
+
+                glDrawArrays(GL_TRIANGLES, 0, num_vertex1);
+
+                // BOT RIGHT WHEEL: Matrix model calculation
+                modelMatrix     = glm::mat4(1.0f); // identity matrix
+                modelMatrix     = glm::translate(modelMatrix, glm::vec3(tx-x_right, ty+right_h, tz-zdistance));
+                modelMatrix     = glm::rotate(modelMatrix, (float) glm::radians(rr), glm::vec3(1,0,0));
+                modelMatrix     = glm::rotate(modelMatrix, (float) glm::radians(180.0), glm::vec3(0,0,1));   // radians
+
+                modelViewMatrix = scene.viewMatrix * modelMatrix;
+
+                // send ModelView to Vertex Shader
+                glUniformMatrix4fv(scene.uMVMatrixLocation,1, GL_FALSE, &modelViewMatrix[0][0]);
+
+                glDrawArrays(GL_TRIANGLES, 0, num_vertex1);
+                break;
+            }
+        }
+
+        case PLATFORM_ID: {
+            if (scene.show_road) {
+
+                // ModelView calculation
                 modelMatrix     = glm::mat4(1.0f); // matriz identidad
-                modelViewMatrix = escena.viewMatrix * modelMatrix;
-                // Envía nuestra ModelView al Vertex Shader
-                glUniformMatrix4fv(escena.uMVMatrixLocation, 1, GL_FALSE, &modelViewMatrix[0][0]);
+                modelViewMatrix = scene.viewMatrix * modelMatrix;
 
-                // Pintar la carretera
-                glUniform4fv(escena.uColorLocation, 1, colores[0]);
-                //                   Asociamos los vértices y sus normales
-                glVertexAttribPointer(escena.aPositionLocation, POSITION_COMPONENT_COUNT, GL_FLOAT, false, STRIDE, modelo0);
-                glVertexAttribPointer(escena.aNormalLocation, NORMAL_COMPONENT_COUNT, GL_FLOAT, false, STRIDE, modelo0+3);
+                // send ModelView to Vertex Shader
+                glUniformMatrix4fv(scene.uMVMatrixLocation, 1, GL_FALSE, &modelViewMatrix[0][0]);
 
-                glDrawArrays(GL_TRIANGLES, 0, num_vertices0);
+                // Matrix model calculation
+                modelMatrix     = glm::mat4(1.0f); // matriz identidad
+                modelMatrix     = glm::translate(modelMatrix,glm::vec3(tx, ty, tz));
+
+                modelViewMatrix = scene.viewMatrix * modelMatrix;
+
+                // draw road
+                glUniform4fv(scene.uColorLocation, 1, colors[0]);
+
+                // associate vertex and its normals
+                glVertexAttribPointer(scene.aPositionLocation, POSITION_COMPONENT_COUNT, GL_FLOAT, false, STRIDE, model0);
+                glVertexAttribPointer(scene.aNormalLocation, NORMAL_COMPONENT_COUNT, GL_FLOAT, false, STRIDE, model0+3);
+
+                glDrawArrays(GL_TRIANGLES, 0, num_vertex0);
 
                 // Pintar las líneas
-                glUniform4fv(escena.uColorLocation, 1, colores[1]);
-                //                   Asociamos los vértices y sus normales
-                glVertexAttribPointer(escena.aPositionLocation, POSITION_COMPONENT_COUNT, GL_FLOAT, false, STRIDE, modelo1);
-                glVertexAttribPointer(escena.aNormalLocation, NORMAL_COMPONENT_COUNT, GL_FLOAT, false, STRIDE, modelo1+3);
+                glUniform4fv(scene.uColorLocation, 1, colors[1]);
 
-                glDrawArrays(GL_TRIANGLES, 0, num_vertices1);
+                // associate vertex and its normals
+                glVertexAttribPointer(scene.aPositionLocation, POSITION_COMPONENT_COUNT, GL_FLOAT, false, STRIDE, model1);
+                glVertexAttribPointer(scene.aNormalLocation, NORMAL_COMPONENT_COUNT, GL_FLOAT, false, STRIDE, model1+3);
+
+                glDrawArrays(GL_TRIANGLES, 0, num_vertex1);
 
 
             }
             break;
         }
-        case COCHE_ID: {
-            if (escena.show_car) {
-                glUniform4fv(escena.uColorLocation, 1, (const GLfloat *) colores[0]);
-                // Asociamos los vértices y sus normales
-                glVertexAttribPointer(escena.aPositionLocation, POSITION_COMPONENT_COUNT, GL_FLOAT, false, STRIDE, modelo0);
-                glVertexAttribPointer(escena.aNormalLocation, NORMAL_COMPONENT_COUNT, GL_FLOAT, false, STRIDE, modelo0+3);
-
-                // Cálculo de la matriz modelo
-                modelMatrix     = glm::mat4(1.0f); // matriz identidad
-                modelMatrix     = glm::translate(modelMatrix,glm::vec3(tx, ty, tz));
-
-                modelViewMatrix = escena.viewMatrix * modelMatrix;
-
-                // Envía nuestra ModelView al Vertex Shader
-                glUniformMatrix4fv(escena.uMVMatrixLocation, 1, GL_FALSE, &modelViewMatrix[0][0]);
-
-                glDrawArrays(GL_TRIANGLES, 0, num_vertices0);
-            }
-
-
-            if (escena.show_wheels)
-            {
-                glUniform4fv(escena.uColorLocation, 1, (const GLfloat *) colores[1]);
-                // Asociamos los vértices y sus normales
-                glVertexAttribPointer(escena.aPositionLocation, POSITION_COMPONENT_COUNT, GL_FLOAT, false, STRIDE, modelo1);
-                glVertexAttribPointer(escena.aNormalLocation, NORMAL_COMPONENT_COUNT, GL_FLOAT, false, STRIDE, modelo1+3);
-
-                // RUEDA Delantera Izquierda : Cálculo de la matriz modelo
-                modelMatrix     = glm::mat4(1.0f); // matriz identidad
-
-                modelMatrix     = glm::translate(modelMatrix, glm::vec3(tx+0.95, ty+0.45, tz));
-                modelMatrix     = glm::rotate(modelMatrix, (float) glm::radians(rr), glm::vec3(1,0,0));      // en radianes
-                modelMatrix     = glm::rotate(modelMatrix, (float) glm::radians(180.0), glm::vec3(0,0,1));   // en radianes
-
-                modelViewMatrix = escena.viewMatrix * modelMatrix;
-
-                // Envia nuestra ModelView al Vertex Shader
-                glUniformMatrix4fv(escena.uMVMatrixLocation, 1, GL_FALSE, &modelViewMatrix[0][0]);
-
-                glDrawArrays(GL_TRIANGLES, 0, num_vertices1);
-
-                // RUEDA Trasera Derecha : Cálculo de la matriz modelo
-                modelMatrix     = glm::mat4(1.0f); // matriz identidad
-                modelMatrix     = glm::translate(modelMatrix, glm::vec3(tx-0.95, ty+0.45, tz));
-                modelMatrix     = glm::rotate(modelMatrix, (float) glm::radians(rr), glm::vec3(1,0,0));
-
-                modelViewMatrix = escena.viewMatrix * modelMatrix;
-
-                // Envia nuestra ModelView al Vertex Shader
-                glUniformMatrix4fv(escena.uMVMatrixLocation, 1, GL_FALSE, &modelViewMatrix[0][0]);
-
-                glDrawArrays(GL_TRIANGLES, 0, num_vertices1);
-
-                // RUEDA Delantera Izquierda : Cálculo de la matriz modelo
-                modelMatrix     = glm::mat4(1.0f); // matriz identidad
-
-                modelMatrix     = glm::translate(modelMatrix, glm::vec3(tx+0.95, ty+0.45, tz-4.24));
-                modelMatrix     = glm::rotate(modelMatrix, (float) glm::radians(rr), glm::vec3(1,0,0));      // en radianes
-                modelMatrix     = glm::rotate(modelMatrix, (float) glm::radians(180.0), glm::vec3(0,0,1));   // en radianes
-
-                modelViewMatrix = escena.viewMatrix * modelMatrix;
-
-                // Envia nuestra ModelView al Vertex Shader
-                glUniformMatrix4fv(escena.uMVMatrixLocation, 1, GL_FALSE, &modelViewMatrix[0][0]);
-
-                glDrawArrays(GL_TRIANGLES, 0, num_vertices1);
-
-                // RUEDA Trasera Derecha : Cálculo de la matriz modelo
-                modelMatrix     = glm::mat4(1.0f); // matriz identidad
-                modelMatrix     = glm::translate(modelMatrix, glm::vec3(tx-0.95, ty+0.45, tz-4.24));
-                modelMatrix     = glm::rotate(modelMatrix, (float) glm::radians(rr), glm::vec3(1,0,0));
-
-                modelViewMatrix = escena.viewMatrix * modelMatrix;
-
-                // Envia nuestra ModelView al Vertex Shader
-                glUniformMatrix4fv(escena.uMVMatrixLocation, 1, GL_FALSE, &modelViewMatrix[0][0]);
-
-                glDrawArrays(GL_TRIANGLES, 0, num_vertices1);
-                break;
-            }
-        }
     } // switch
 
 }
 
-//************************************************************** Clase TEscena
+//************************************************************** Clase TScene
 
-TEscena::TEscena() {
+TScene::TScene() {
 
-    seleccion = 1;
+    selection = 1;
     num_objects = 0;
     num_cars = 0;
 
@@ -218,7 +273,7 @@ TEscena::TEscena() {
     show_wheels = 1;
     show_road = 1;
 
-    // live variables usadas por GLUI en TGui
+    // live variables used by GLUI in TGui
     wireframe = 0;
     z_buffer = 1;
     culling = 0;
@@ -249,7 +304,7 @@ TEscena::TEscena() {
     memcpy(mat_shininess, mat_shininess_c, 1*sizeof(float));
 }
 
-void __fastcall TEscena::InitGL()
+void __fastcall TScene::InitGL()
 {
     int tx, ty, tw, th;
 
@@ -317,27 +372,27 @@ void __fastcall TEscena::InitGL()
 }
 
 
-/************************** TEscena::AddCar(TPrimitiva *car) *****************/
+/************************** TScene::AddCar(TPrimitive *car) *****************/
 
-void __fastcall TEscena::AddCar(TPrimitiva *car)
+void __fastcall TScene::AddCar(TPrimitive *car)
 {
     cars[num_cars] = car;
     num_cars++;
 }
 
-/******************** TEscena::AddObject(TPrimitiva *object) *****************/
+/******************** TScene::AddObject(TPrimitive *object) *****************/
 
-void __fastcall TEscena::AddObject(TPrimitiva *object)
+void __fastcall TScene::AddObject(TPrimitive *object)
 {
     objects[num_objects] = object;
     num_objects++;
 }
 
-/******************** TPrimitiva *TEscena::GetCar(int id) ********************/
+/******************** TPrimitive *TScene::GetCar(int id) ********************/
 
-TPrimitiva __fastcall *TEscena::GetCar(int id)
+TPrimitive __fastcall *TScene::GetCar(int id)
 {
-    TPrimitiva *p=NULL;
+    TPrimitive *p=NULL;
 
     for (int i=0; i<num_cars; i++)
     {
@@ -350,29 +405,29 @@ TPrimitiva __fastcall *TEscena::GetCar(int id)
     return(p);
 }
 
-/******************** TEscena::RenderCars() **********************************/
+/******************** TScene::RenderCars() **********************************/
 
-void __fastcall TEscena::RenderCars(bool reflejo) {
+void __fastcall TScene::RenderCars(bool reflex) {
 
     for (int i=0; i<num_cars; i++)
     {
-        cars[i]->Render(seleccion, reflejo);
+        cars[i]->Render(selection, reflex);
     }
 }
 
-/******************** TEscena::RenderCars() **********************************/
+/******************** TScene::RenderCars() **********************************/
 
-void __fastcall TEscena::RenderObjects(bool reflejo) {
+void __fastcall TScene::RenderObjects(bool reflex) {
 
     for (int i=0; i<num_objects; i++)
     {
-        objects[i]->Render(seleccion, reflejo);
+        objects[i]->Render(selection, reflex);
     }
 }
 
-/***************************************** TEscena::Render() *****************/
+/***************************************** TScene::Render() *****************/
 
-void __fastcall TEscena::Render()
+void __fastcall TScene::Render()
 {
     glm::mat4 rotateMatrix;
 
@@ -390,21 +445,21 @@ void __fastcall TEscena::Render()
     glUniform1i(uLuz0Location, gui.light0_enabled);
     glUniformMatrix4fv(uVMatrixLocation, 1, GL_FALSE, glm::value_ptr(viewMatrix)); // Para la luz matrix view pero sin escalado!
 
-    // Dibujar carretera y objetos
-    RenderObjects(seleccion);
+    // draw road and objects
+    RenderObjects(selection);
 
-    // Dibujar coches
-    RenderCars(seleccion);
+    // draw objects
+    RenderCars(selection);
 
     glutSwapBuffers();
 }
 
-// Selecciona un objeto a través del ratón
-void __fastcall TEscena::Pick3D(int mouse_x, int mouse_y)
+// Selects a object through mouse
+void __fastcall TScene::Pick3D(int mouse_x, int mouse_y)
 {
 }
 
-//************************************************************** Clase TGui
+//************************************************************** Class TGui
 
 TGui::TGui()
 {
@@ -439,64 +494,64 @@ void __fastcall TGui::Init(int main_window) {
     new GLUI_StaticText( glui, "" );
 
     // Añade un panel con texto con el valor de la selección
-    GLUI_Panel *panel0 = new GLUI_Panel(glui, "Seleccion");
+    GLUI_Panel *panel0 = new GLUI_Panel(glui, "Selection");
     GLUI_RadioGroup *radioGroup = new GLUI_RadioGroup(panel0, &sel, SEL_ID, controlCallback);
-    glui->add_radiobutton_to_group(radioGroup, "NINGUNO");
+    glui->add_radiobutton_to_group(radioGroup, "NONE");
 
 
-    glui->add_radiobutton_to_group(radioGroup, "COCHE 1");
-    glui->add_radiobutton_to_group(radioGroup, "COCHE 2");
+    glui->add_radiobutton_to_group(radioGroup, "CAR 1");
+    glui->add_radiobutton_to_group(radioGroup, "CAR 2");
 
 
-    // Añade una separación
+    // Adds a separation
     new GLUI_StaticText( glui, "" );
 
-    obj_panel = new GLUI_Rollout(glui, "Propiedades", true );
+    obj_panel = new GLUI_Rollout(glui, "Properties", true );
 
-    /***** Control para las propiedades de escena *****/
+    /***** Control para las propiedades de scene *****/
 
-    new GLUI_Checkbox( obj_panel, "Modo Alambrico", &escena.wireframe, 1, controlCallback );
+    new GLUI_Checkbox( obj_panel, "Wired mode", &scene.wireframe, 1, controlCallback );
     glui->add_column_to_panel(obj_panel, true);
-    new GLUI_Checkbox( obj_panel, "Culling", &escena.culling, 1, controlCallback );
-    new GLUI_Checkbox( obj_panel, "Z Buffer", &escena.z_buffer, 1, controlCallback );
+    new GLUI_Checkbox( obj_panel, "Culling", &scene.culling, 1, controlCallback );
+    new GLUI_Checkbox( obj_panel, "Z Buffer", &scene.z_buffer, 1, controlCallback );
 
     /******** Añade controles para las luces ********/
 
     // Añade una separación
     new GLUI_StaticText( glui, "" );
 
-    GLUI_Rollout *roll_lights = new GLUI_Rollout(glui, "Luces", false );
+    GLUI_Rollout *roll_lights = new GLUI_Rollout(glui, "Lights", false );
 
-    GLUI_Panel *light0 = new GLUI_Panel( roll_lights, "Luz 1" );
-    GLUI_Panel *light1 = new GLUI_Panel( roll_lights, "Luz 2" );
+    GLUI_Panel *light0 = new GLUI_Panel( roll_lights, "Light 1" );
+    GLUI_Panel *light1 = new GLUI_Panel( roll_lights, "Light 2" );
 
-    new GLUI_Checkbox( light0, "Encendida", &light0_enabled, LIGHT0_ENABLED_ID, controlCallback );
+    new GLUI_Checkbox( light0, "Turned ON", &light0_enabled, LIGHT0_ENABLED_ID, controlCallback );
     light0_spinner = new GLUI_Spinner( light0, "Intensidad:", &light0_intensity,
                             LIGHT0_INTENSITY_ID, controlCallback );
     light0_spinner->set_float_limits( 0.0, 1.0 );
     GLUI_Scrollbar *sb;
     sb = new GLUI_Scrollbar( light0, "X",GLUI_SCROLL_HORIZONTAL,
-                            &escena.light0_position[0],LIGHT0_POSITION_ID,controlCallback);
+                            &scene.light0_position[0],LIGHT0_POSITION_ID,controlCallback);
     sb->set_float_limits(-100,100);
     sb = new GLUI_Scrollbar( light0, "Y",GLUI_SCROLL_HORIZONTAL,
-                            &escena.light0_position[1],LIGHT0_POSITION_ID,controlCallback);
+                            &scene.light0_position[1],LIGHT0_POSITION_ID,controlCallback);
     sb->set_float_limits(-100,100);
     sb = new GLUI_Scrollbar( light0, "Z",GLUI_SCROLL_HORIZONTAL,
-                            &escena.light0_position[2],LIGHT0_POSITION_ID,controlCallback);
+                            &scene.light0_position[2],LIGHT0_POSITION_ID,controlCallback);
     sb->set_float_limits(-100,100);
 
-    new GLUI_Checkbox( light1, "Encendida", &light1_enabled, LIGHT1_ENABLED_ID, controlCallback );
-    light1_spinner = new GLUI_Spinner( light1, "Intensidad:", &light1_intensity,
+    new GLUI_Checkbox( light1, "Turned ON", &light1_enabled, LIGHT1_ENABLED_ID, controlCallback );
+    light1_spinner = new GLUI_Spinner( light1, "Intensity:", &light1_intensity,
                             LIGHT1_INTENSITY_ID, controlCallback );
     light1_spinner->set_float_limits( 0.0, 1.0 );
     sb = new GLUI_Scrollbar( light1, "X",GLUI_SCROLL_HORIZONTAL,
-                            &escena.light1_position[0],LIGHT1_POSITION_ID,controlCallback);
+                            &scene.light1_position[0],LIGHT1_POSITION_ID,controlCallback);
     sb->set_float_limits(-100,100);
     sb = new GLUI_Scrollbar( light1, "Y",GLUI_SCROLL_HORIZONTAL,
-                            &escena.light1_position[1],LIGHT1_POSITION_ID,controlCallback);
+                            &scene.light1_position[1],LIGHT1_POSITION_ID,controlCallback);
     sb->set_float_limits(-100,100);
     sb = new GLUI_Scrollbar( light1, "Z",GLUI_SCROLL_HORIZONTAL,
-                            &escena.light1_position[2],LIGHT1_POSITION_ID,controlCallback);
+                            &scene.light1_position[2],LIGHT1_POSITION_ID,controlCallback);
     sb->set_float_limits(-100,100);
 
 
@@ -504,19 +559,19 @@ void __fastcall TGui::Init(int main_window) {
     new GLUI_StaticText( glui, "" );
 
     /***  Rollout de Opciones ***/
-    GLUI_Rollout *options = new GLUI_Rollout(glui, "Opciones", true );
-    new GLUI_Checkbox( options, "Dibujar Coche", &escena.show_car );
-    new GLUI_Checkbox( options, "Dibujar Ruedas", &escena.show_wheels );
-    new GLUI_Checkbox( options, "Dibujar Carretera", &escena.show_road );
+    GLUI_Rollout *options = new GLUI_Rollout(glui, "Options", true );
+    new GLUI_Checkbox( options, "Draw Car", &scene.show_car );
+    new GLUI_Checkbox( options, "Draw Wheels", &scene.show_wheels );
+    new GLUI_Checkbox( options, "Draw road", &scene.show_road );
 
 
     /*** Disable/Enable botones ***/
     // Añade una separación
     new GLUI_StaticText( glui, "" );
-    new GLUI_Checkbox( glui, "Bloquear Movimiento", &enable_panel2 );
+    new GLUI_Checkbox( glui, "Block movement", &enable_panel2 );
     // Añade una separación
     new GLUI_StaticText( glui, "" );
-    new GLUI_Button( glui, "Resetear Posicion", RESET_ID, controlCallback );
+    new GLUI_Button( glui, "Reset Position", RESET_ID, controlCallback );
 
     // Añade una separación
     new GLUI_StaticText( glui, "" );
@@ -526,40 +581,40 @@ void __fastcall TGui::Init(int main_window) {
      // Añade una separación
     new GLUI_StaticText( glui, "" );
 
-    new GLUI_StaticText( glui, "  Autor:" );
-    new GLUI_StaticText( glui, "  2012-2016 (C) Juan Antonio Puchol  " );
+    new GLUI_StaticText( glui, "  Author:" );
+    new GLUI_StaticText( glui, "  2017 (CC) @JesusHF_" );
 
-    // Añade una separación
+    // Adds a separation
     new GLUI_StaticText( glui, "" );
 
     new GLUI_Separator( glui );
 
-    // Añade una separación
+    // Add a separation
     new GLUI_StaticText( glui, "" );
 
     /****** A 'quit' button *****/
-    new GLUI_Button( glui, "Salir", 0,(GLUI_Update_CB)exit );
+    new GLUI_Button( glui, "QUIT", 0,(GLUI_Update_CB)exit );
 
-    // Crea la subventana inferior
+    // Create sub window
     glui2 = GLUI_Master.create_glui_subwindow( window_id, GLUI_SUBWINDOW_BOTTOM );
 
     /**** Link windows to GLUI, and register idle callback ******/
     glui->set_main_gfx_window( window_id );
     glui2->set_main_gfx_window( window_id );
 
-    view_rot = new GLUI_Rotation(glui2, "Rotacion Escena", escena.view_rotate );
+    view_rot = new GLUI_Rotation(glui2, "Rotacion Escena", scene.view_rotate );
     view_rot->set_spin( 1.0 );
     new GLUI_Column( glui2, false );
-    GLUI_Translation *trans_xy = new GLUI_Translation(glui2, "Traslacion Escena XY", GLUI_TRANSLATION_XY, escena.view_position );
+    GLUI_Translation *trans_xy = new GLUI_Translation(glui2, "Traslacion Escena XY", GLUI_TRANSLATION_XY, scene.view_position );
     trans_xy->set_speed( .005 );
     new GLUI_Column( glui2, false );
-    GLUI_Translation *trans_x =  new GLUI_Translation(glui2, "Traslacion Escena X", GLUI_TRANSLATION_X, escena.view_position );
+    GLUI_Translation *trans_x =  new GLUI_Translation(glui2, "Traslacion Escena X", GLUI_TRANSLATION_X, scene.view_position );
     trans_x->set_speed( .005 );
     new GLUI_Column( glui2, false );
-    GLUI_Translation *trans_y = new GLUI_Translation( glui2, "Traslacion Escena Y", GLUI_TRANSLATION_Y, &escena.view_position[1] );
+    GLUI_Translation *trans_y = new GLUI_Translation( glui2, "Traslacion Escena Y", GLUI_TRANSLATION_Y, &scene.view_position[1] );
     trans_y->set_speed( .005 );
     new GLUI_Column( glui2, false );
-    GLUI_Translation *trans_z = new GLUI_Translation( glui2, "Traslacion Escena Z", GLUI_TRANSLATION_Z, &escena.scale );
+    GLUI_Translation *trans_z = new GLUI_Translation( glui2, "Traslacion Escena Z", GLUI_TRANSLATION_Z, &scene.scale );
     trans_z->set_speed( .005 );
 
 }
@@ -586,8 +641,8 @@ void __fastcall TGui::ControlCallback( int control )
         case LIGHT0_INTENSITY_ID: {
 
             float v[] = {
-                escena.light0_diffuse[0],  escena.light0_diffuse[1],
-                escena.light0_diffuse[2],  escena.light0_diffuse[3] };
+                scene.light0_diffuse[0],  scene.light0_diffuse[1],
+                scene.light0_diffuse[2],  scene.light0_diffuse[3] };
 
             v[0] *= light0_intensity;
             v[1] *= light0_intensity;
@@ -597,8 +652,8 @@ void __fastcall TGui::ControlCallback( int control )
         case LIGHT1_INTENSITY_ID: {
 
             float v[] = {
-                escena.light1_diffuse[0],  escena.light1_diffuse[1],
-                escena.light1_diffuse[2],  escena.light1_diffuse[3] };
+                scene.light1_diffuse[0],  scene.light1_diffuse[1],
+                scene.light1_diffuse[2],  scene.light1_diffuse[3] };
 
             v[0] *= light1_intensity;
             v[1] *= light1_intensity;
@@ -614,13 +669,13 @@ void __fastcall TGui::ControlCallback( int control )
             break;
         }
         case RESET_ID: {
-            memcpy(escena.view_position,view_position_c,3*sizeof(float));
+            memcpy(scene.view_position,view_position_c,3*sizeof(float));
             view_rot->reset();
-            escena.scale = 1.0;
+            scene.scale = 1.0;
             break;
         }
         case SEL_ID: {
-            escena.seleccion = sel;
+            scene.selection = sel;
             //GLUI_Master.SetFocus(true);
             glutSetWindow( glui->get_glut_window_id() );
             break;
@@ -657,11 +712,11 @@ void __fastcall TGui::Reshape( int x, int y )
     GLUI_Master.get_viewport_area( &tx, &ty, &tw, &th );
     glViewport( tx, ty, tw, th );
 
-    escena.xy_aspect = (float)tw / (float)th;
-    escena.projectionMatrix = glm::perspective(45.0f, escena.xy_aspect, 0.1f, 1000.0f);
-    glUniformMatrix4fv(escena.uProjectionMatrixLocation, 1, GL_FALSE, glm::value_ptr(escena.projectionMatrix));
+    scene.xy_aspect = (float)tw / (float)th;
+    scene.projectionMatrix = glm::perspective(45.0f, scene.xy_aspect, 0.1f, 1000.0f);
+    glUniformMatrix4fv(scene.uProjectionMatrixLocation, 1, GL_FALSE, glm::value_ptr(scene.projectionMatrix));
 
-    //std::cout << "xy aspect: " << escena.xy_aspect << std::endl;
+    //std::cout << "xy aspect: " << scene.xy_aspect << std::endl;
 
     glutPostRedisplay();
 }
@@ -677,6 +732,6 @@ void __fastcall TGui::Motion(int x, int y )
 
 void __fastcall TGui::Mouse(int button, int button_state, int x, int y )
 {
-    escena.Pick3D(x, y);
+    scene.Pick3D(x, y);
 }
 

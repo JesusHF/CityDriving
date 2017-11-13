@@ -7,7 +7,7 @@
     OpenGL with Shaders
   --------------------------------------------------------------------------------------
 
-    ForestDriving (C) 2017
+    ForestDriving (CC) 2017
 
 ****************************************************************************************/
 
@@ -26,12 +26,12 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-// Identificadores internos de los objetos
-#define CARRETERA_ID    10
+// Internal ids for objects
+#define ROAD_ID        10
+#define CAR_ID	       100
+#define PLATFORM_ID   105
 
-#define COCHE_ID	    100 // Un coche cada 100
-
-// IDs para los callbacks de TGui
+// TGui callbacks IDs
 #define LIGHT0_ENABLED_ID    200
 #define LIGHT1_ENABLED_ID    201
 #define LIGHT0_POSITION_ID   210
@@ -47,18 +47,18 @@
 
 #define SEL_ID               500
 
-// Datos del formato 3DS (x, y, z, A, B, C, u, v)
+// 3DS format data (x, y, z, A, B, C, u, v)
 #define POSITION_COMPONENT_COUNT    3
 #define NORMAL_COMPONENT_COUNT      3
 #define UV_COMPONENT_COUNT          2
-// Cálculo del stride (3+3+2)*4 = 8*4 = 32
+// stride operation (3+3+2)*4 = 8*4 = 32
 #define STRIDE                      32
 
-// Nombre de los attributes
+// attributes name
 #define A_POSITION  "a_Position"
 #define A_NORMAL    "a_Normal"
 
-// Nombre de los uniforms
+// uniforms name
 #define U_PROJECTIONMATRIX      "u_ProjectionMatrix"
 #define U_MVMATRIX              "u_MVMatrix"
 #define U_VMATRIX               "u_VMatrix"
@@ -67,41 +67,43 @@
 
 //************************************************************** Clase TPrimtiva
 
-class TPrimitiva
+class TPrimitive
 {
-public: // Atributos de la clase
-		int ID;				    // DisplayLists del objeto
-		int tipo;               // Tipo de Objeto
-		float tx,ty,tz; 	    // Posición del objeto
-		float sx,sy,sz; 	    // Escalado del objeto
-		float rx,ry,rz;     	// Rotación del objeto
-		float rr;               // Rotación de las ruedas
-		float colores[2][4];    // Color RGB y canal Alfa
+public: // Class attributes
+		int ID;				    // DisplayLists
+		int type;               // Object type
+		float tx,ty,tz; 	    // Object position
+		float sx,sy,sz; 	    // Object scale
+		float rx,ry,rz;     	// Object rotation
+		float rr;               // Wheel rotation
+		float colors[2][4];    // RGB Color and Alfa channel
 
-		float   *modelo0;        // modelo a representar
-		int     num_vertices0;   // número de vértices
+		float   *model0;        // model to render
+		int     num_vertex0;   // vertex number
 
-        float   *modelo1;        // modelo a representar
-		int     num_vertices1;   // número de vértices
+        float   *model1;        // second model to render
+		int     num_vertex1;   // vertex number
 
-public: // Métodos
- 		TPrimitiva(int DL, int tipo);
-        void __fastcall Render(int seleccion, bool reflejo=false);
+public: // Methods
+ 		TPrimitive(int DL, int type);
+        void __fastcall Render(int selection, bool reflex=false);
 };
 
-//************************************************************** Clase TEscena
+//************************************************************** TScene Class
 
-class TEscena
+class TScene
 {
-public: // Atributos de la clase
-		int   	seleccion;   	// Objeto seleccionado, 0=ninguno
-        int		num_objects;    // Número de objetos (excepto coches)
-        int     num_cars;       // Número de coches
+public: // Class attributes
+		int   	selection;   	// Object selected, 0=none
+        int		num_objects;    // Objects number
+        int     num_cars;       // Car number
 
-        TPrimitiva  *cars[10];
-        TPrimitiva  *objects[100];
+        //Up to 10 cars in scene
+        TPrimitive  *cars[10];
+        //Up to 100 objects in scene
+        TPrimitive  *objects[100];
 
-        // Handles de los attributes y uniforms
+        // Attributes & uniforms Handles
         int aPositionLocation;
         int aNormalLocation;
         int uProjectionMatrixLocation;
@@ -110,12 +112,12 @@ public: // Atributos de la clase
 		int uColorLocation;
 		int uLuz0Location;
 
-		glm::mat4 projectionMatrix; // Almacena la matriz de proyección
-        glm::mat4 viewMatrix;       // Almacena la matriz de la vista (cámara)
+		glm::mat4 projectionMatrix; // Stores Projection matrix
+        glm::mat4 viewMatrix;       // Stores View matrix (camera)
 
-		Program  *shaderProgram;    // Almacena el programa de OpenGL (ShaderProgram)
+		Program  *shaderProgram;    // Stores OpenGL program (ShaderProgram)
 
-        // Vectores de luces y materiales
+        // Lights and materials vectors
         GLfloat light0_ambient[4];
         GLfloat light0_diffuse[4];
         GLfloat light0_specular[4];
@@ -134,7 +136,7 @@ public: // Atributos de la clase
         float   xy_aspect;
         int     last_x, last_y;
 
-        // live variables usadas por GLUI en TGui
+        // live variables used by GLUI in TGui
         int     wireframe;
         int     z_buffer;
         int     culling;
@@ -147,32 +149,32 @@ public: // Atributos de la clase
         GLfloat view_rotate[16];
         float   scale;
 
-public: // Métodos
-		TEscena();
+public: // Methods
+		TScene();
 
         void __fastcall InitGL();
 		void __fastcall Render();
-		void __fastcall RenderCars(bool reflejo=false);
-		void __fastcall RenderObjects(bool reflejo=false);
+		void __fastcall RenderCars(bool reflex=false);
+		void __fastcall RenderObjects(bool reflex=false);
 
-		void __fastcall AddCar(TPrimitiva *car);
-		void __fastcall AddObject(TPrimitiva *object);
+		void __fastcall AddCar(TPrimitive *car);
+		void __fastcall AddObject(TPrimitive *object);
 
-		TPrimitiva __fastcall *GetCar(int id);
+		TPrimitive __fastcall *GetCar(int id);
 
 		void __fastcall Pick3D(int mouse_x, int mouse_y);
 
 
 };
 
-//************************************************************** Clase TGui
+//************************************************************** Class TGui
 
 class TGui
 {
 public:
         int             window_id;
 
-        // live variables usadas por GLUI
+        // live variables used by GLUI
         int             sel;
         int             enable_panel2;
         int             light0_enabled;
@@ -201,7 +203,7 @@ public:
 
 //************************************************************** Variables de clase
 
-extern TEscena  escena;
+extern TScene  scene;
 extern TGui     gui;
 
 #endif

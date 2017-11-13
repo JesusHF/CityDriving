@@ -7,9 +7,9 @@
     OpenGL with Shaders
   ------------------------------------------------------------------------------------------
 
-    ForestDriving (C) 2017
+    ForestDriving (CC) 2017
 
-    NOTA:   In order of this application to compile, you will need the next project structure
+    NOTE:   In order of this application to compile, you will need the next project structure
 
             glut32.dll  -> C:\Windows\system
 
@@ -38,12 +38,6 @@
             glm         -> C:\Program Files (x86)\CodeBlocks\MinGW\include
 
 
-            ACLARACIÓN:
-                Hay varias librerías libglui32.a en la carpeta "otros"
-                - Renombrar libglui32.10.05.a a libglui32.a para usar Code::Blocks 10.05
-                - Renombrar libglui32.12.11.a a libglui32.a para usar Code::Blocks 12.11
-                - Renombrar libglui32.13.12.a a libglui32.a para usar Code::Blocks 13.12 o superior
-
 ****************************************************************************************************/
 
 #include "Objects.h"
@@ -69,7 +63,7 @@ void Keyboard(unsigned char Key, int x, int y)
 
 static void SpecialKey(int key, int x, int y)
 {
-    TPrimitiva *car = escena.GetCar(escena.seleccion);
+    TPrimitive *car = scene.GetCar(scene.selection);
 
     switch (key)
     {
@@ -100,7 +94,7 @@ void Mouse(int button, int button_state, int x, int y )
 
 void Render()
 {
-    escena.Render();
+    scene.Render();
 }
 
 void Idle()
@@ -126,10 +120,10 @@ int main(int argc, char* argv[])
     glutInitWindowPosition( 50, 50 );
     glutInitWindowSize( 1300, 600 );
 
-    int main_window = glutCreateWindow( "CarGL V2.0 (2015) con Shaders" );
+    int main_window = glutCreateWindow( "Forest Driving (2017)jesushf" );
 
     // Initialize OpenGL values for this Application
-    escena.InitGL();
+    scene.InitGL();
     gui.Init(main_window);
 
     glutDisplayFunc( Render );
@@ -143,20 +137,17 @@ int main(int argc, char* argv[])
     GLUI_Master.set_glutIdleFunc( Idle );
 
     // Create objects
-    TPrimitiva *road = new TPrimitiva(CARRETERA_ID, CARRETERA_ID);
-    TPrimitiva *car1 = new TPrimitiva(1, COCHE_ID);
-    TPrimitiva *car2 = new TPrimitiva(2, COCHE_ID);
+    int object_id = 0;
+    TPrimitive *road        = new TPrimitive(object_id++, ROAD_ID);
+    TPrimitive *car1        = new TPrimitive(object_id++, CAR_ID);
+    TPrimitive *car2        = new TPrimitive(object_id++, CAR_ID);
+    TPrimitive *platform   = new TPrimitive(object_id++, PLATFORM_ID);
 
-    car2->colores[0][0] = 0.3;
-    car2->colores[0][1] = 0.8;
-    car2->colores[0][2] = 0.4;
-    car2->colores[0][3] = 1.0;
-    car2->tx = 2;
-    car2->tz = 3;
 
-    escena.AddObject(road);
-    escena.AddCar(car1);
-    escena.AddCar(car2);
+    scene.AddObject(road);
+    scene.AddObject(platform);
+    scene.AddCar(car1);
+    scene.AddCar(car2);
 
     /**** Regular GLUT main loop ****/
     glutMainLoop();
