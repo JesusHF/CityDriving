@@ -104,7 +104,16 @@ TPrimitive::TPrimitive(int DL, int t)
 		    memcpy(colors, colors_floor, 8*sizeof(float));
             //************************ Loading 3ds models ***********************************
             // 8 floats format per vertex (x, y, z, A, B, C, u, v)
-            model0 = Load3DS("../../models/suelo.3ds", &num_vertex0);
+            model0 = Load3DS("../../models/floor.3ds", &num_vertex0);
+            break;
+		}
+
+		case FLOOR2_ID: { // Platform
+
+		    memcpy(colors, colors_floor, 8*sizeof(float));
+            //************************ Loading 3ds models ***********************************
+            // 8 floats format per vertex (x, y, z, A, B, C, u, v)
+            model0 = Load3DS("../../models/floor2.3ds", &num_vertex0);
             break;
 		}
 
@@ -156,6 +165,27 @@ TPrimitive::TPrimitive(int DL, int t)
 
             break;
 		}
+
+		case SIGNAL1_ID: {  // Road creation
+
+            memcpy(colors[0], colors_floor, 8*sizeof(float));
+            //************************ Loading 3ds models ***********************************
+            // 8 floats format per vertex (x, y, z, A, B, C, u, v)
+            model0 = Load3DS("../../models/signal_sausage.3ds", &num_vertex0);
+
+            break;
+		}
+
+		case SIGNAL2_ID: {  // Road creation
+
+            memcpy(colors[0], colors_floor, 8*sizeof(float));
+            //************************ Loading 3ds models ***********************************
+            // 8 floats format per vertex (x, y, z, A, B, C, u, v)
+            model0 = Load3DS("../../models/signal_not_sausage.3ds", &num_vertex0);
+
+            break;
+		}
+
 	} // switch
 }
 
@@ -274,10 +304,13 @@ void __fastcall TPrimitive::Render(int selection, bool reflex)
 
         case PLATFORM_ID:
         case FLOOR_ID:
+        case FLOOR2_ID:
         case RIVER_ID:
         case MOUNTAINS_ID:
         case TREES_ID:
         case TUNNEL_ID:
+        case SIGNAL1_ID:
+        case SIGNAL2_ID:
         {
             if (scene.show_road) {
 

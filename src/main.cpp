@@ -142,23 +142,29 @@ int main(int argc, char* argv[])
     TPrimitive *car2        = new TPrimitive(object_id++, CAR_ID);
     TPrimitive *platform    = new TPrimitive(object_id++, PLATFORM_ID);
     TPrimitive *floor       = new TPrimitive(object_id++, FLOOR_ID);
+    TPrimitive *floor2      = new TPrimitive(object_id++, FLOOR2_ID);
     TPrimitive *river       = new TPrimitive(object_id++, RIVER_ID);
     TPrimitive *mountains   = new TPrimitive(object_id++, MOUNTAINS_ID);
     TPrimitive *trees       = new TPrimitive(object_id++, TREES_ID);
     TPrimitive *tunnel      = new TPrimitive(object_id++, TUNNEL_ID);
     TPrimitive *bollards    = new TPrimitive(object_id++, BOLLARDS_ID);
+    TPrimitive *signall     = new TPrimitive(object_id++, SIGNAL1_ID);
+    TPrimitive *signal2     = new TPrimitive(object_id++, SIGNAL2_ID);
 
 
-
-    scene.AddObject(road);
-    scene.AddObject(platform);
     scene.AddCar(car1);
     scene.AddCar(car2);
-    scene.AddCar(floor);
-    scene.AddCar(river);
-    scene.AddCar(mountains);
-    scene.AddCar(trees);
-    scene.AddCar(tunnel);
+    scene.AddObject(road);
+    scene.AddObject(platform);
+    scene.AddObject(floor);
+    scene.AddObject(floor2);
+    scene.AddObject(river);
+    scene.AddObject(mountains);
+    scene.AddObject(trees);
+    scene.AddObject(tunnel);
+    scene.AddObject(bollards);
+    scene.AddObject(signall);
+    scene.AddObject(signal2);
 
     /**** Regular GLUT main loop ****/
     glutMainLoop();

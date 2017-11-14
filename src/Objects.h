@@ -31,11 +31,14 @@
 #define CAR_ID	        100
 #define PLATFORM_ID     105
 #define FLOOR_ID        110
-#define RIVER_ID        115
-#define MOUNTAINS_ID    120
-#define TREES_ID        125
-#define TUNNEL_ID       130
-#define BOLLARDS_ID     135
+#define FLOOR2_ID       115
+#define RIVER_ID        120
+#define MOUNTAINS_ID    125
+#define TREES_ID        130
+#define TUNNEL_ID       135
+#define BOLLARDS_ID     140
+#define SIGNAL1_ID      145
+#define SIGNAL2_ID      150
 
 
 // TGui callbacks IDs
