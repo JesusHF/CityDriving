@@ -53,7 +53,6 @@ void Keyboard(unsigned char Key, int x, int y)
         case 'q':
             exit(0);
             break;
-
     }
 
     glutPostRedisplay();
@@ -141,13 +140,25 @@ int main(int argc, char* argv[])
     TPrimitive *road        = new TPrimitive(object_id++, ROAD_ID);
     TPrimitive *car1        = new TPrimitive(object_id++, CAR_ID);
     TPrimitive *car2        = new TPrimitive(object_id++, CAR_ID);
-    TPrimitive *platform   = new TPrimitive(object_id++, PLATFORM_ID);
+    TPrimitive *platform    = new TPrimitive(object_id++, PLATFORM_ID);
+    TPrimitive *floor       = new TPrimitive(object_id++, FLOOR_ID);
+    TPrimitive *river       = new TPrimitive(object_id++, RIVER_ID);
+    TPrimitive *mountains   = new TPrimitive(object_id++, MOUNTAINS_ID);
+    TPrimitive *trees       = new TPrimitive(object_id++, TREES_ID);
+    TPrimitive *tunnel      = new TPrimitive(object_id++, TUNNEL_ID);
+    TPrimitive *bollards    = new TPrimitive(object_id++, BOLLARDS_ID);
+
 
 
     scene.AddObject(road);
     scene.AddObject(platform);
     scene.AddCar(car1);
     scene.AddCar(car2);
+    scene.AddCar(floor);
+    scene.AddCar(river);
+    scene.AddCar(mountains);
+    scene.AddCar(trees);
+    scene.AddCar(tunnel);
 
     /**** Regular GLUT main loop ****/
     glutMainLoop();

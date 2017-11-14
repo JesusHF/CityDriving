@@ -47,6 +47,10 @@ float view_position_c[3] = { 0.0, -2.0, -9.0 };
 
 float colorsc_c[2][4] = { {0.8, 0.5, 0.0, 1.0}, {0.5, 0.5, 0.5, 1.0}}; // Car color
 float colorsr_c[2][4] = { {0.3, 0.3, 0.3, 1.0}, {1.0, 1.0, 1.0, 1.0}}; // Road color
+float colors_floor[2][4] = { {0.0, 0.6, 0.0, 1.0}, {1.0, 1.0, 1.0, 1.0}}; // Floor color
+float colors_river[2][4] = { {0.0, 0.6, 1.0, 1.0}, {1.0, 1.0, 1.0, 1.0}}; // River color
+float colors_mount[2][4] = { {0.3, 0.15,0.0, 1.0}, {1.0, 1.0, 1.0, 1.0}}; // Mountains  color
+float colors_platf[2][4] = { {0.8, 0.5, 0.0, 1.0}, {0.5, 0.5, 0.5, 1.0}}; // Platform color
 
 //************************************************************** Class Variables
 
@@ -63,12 +67,12 @@ TPrimitive::TPrimitive(int DL, int t)
 
     sx = sy = sz = 1;
     rx = ry = rz = 0;
+	tx = ty = tz = 0;
+
 	switch (type) {
 		case ROAD_ID: {  // Road creation
-		    tx = ty = tz = 0;
 
             memcpy(colors[0], colorsr_c, 8*sizeof(float));
-
             //************************ Loading 3ds models ***********************************
             // 8 floats format per vertex (x, y, z, A, B, C, u, v)
             model0 = Load3DS("../../models/carretera.3ds", &num_vertex0);
@@ -77,13 +81,8 @@ TPrimitive::TPrimitive(int DL, int t)
 		}
 		case CAR_ID: { // Car creation
 
-		    tx = -2.0;
-		    ty =  0.0;
-		    tz =  0.0;
-		    rr =  0.0;
-
+		    tx = -1.0;
 		    memcpy(colors, colorsc_c, 8*sizeof(float));
-
             //************************ Loading 3ds models ***********************************
             // 8 floats format per vertex (x, y, z, A, B, C, u, v)
             model0 = Load3DS("../../models/coche_salchicha.3ds", &num_vertex0);
@@ -93,14 +92,68 @@ TPrimitive::TPrimitive(int DL, int t)
 
 		case PLATFORM_ID: { // Platform
 
-		    tx = ty = tz = 0;
-		    //ry = 1;
+		    memcpy(colors, colors_platf, 8*sizeof(float));
+            //************************ Loading 3ds models ***********************************
+            // 8 floats format per vertex (x, y, z, A, B, C, u, v)
+            model0 = Load3DS("../../models/platform.3ds", &num_vertex0);
+            break;
+		}
 
-		    memcpy(colors, colorsc_c, 8*sizeof(float));
+        case FLOOR_ID: { // Platform
+
+		    memcpy(colors, colors_floor, 8*sizeof(float));
+            //************************ Loading 3ds models ***********************************
+            // 8 floats format per vertex (x, y, z, A, B, C, u, v)
+            model0 = Load3DS("../../models/suelo.3ds", &num_vertex0);
+            break;
+		}
+
+        case RIVER_ID: { // Platform
+
+		    tx = ty = tz = 0;
+		    memcpy(colors, colors_river, 8*sizeof(float));
 
             //************************ Loading 3ds models ***********************************
             // 8 floats format per vertex (x, y, z, A, B, C, u, v)
-            model0 = Load3DS("../../models/plataforma.3ds", &num_vertex0);
+            model0 = Load3DS("../../models/rio.3ds", &num_vertex0);
+            break;
+		}
+
+        case MOUNTAINS_ID: { // Platform
+
+		    memcpy(colors, colors_mount, 8*sizeof(float));
+            //************************ Loading 3ds models ***********************************
+            // 8 floats format per vertex (x, y, z, A, B, C, u, v)
+            model0 = Load3DS("../../models/mountains.3ds", &num_vertex0);
+            break;
+		}
+
+        case TREES_ID: { // Platform
+
+		    memcpy(colors, colors_mount, 8*sizeof(float));
+            //************************ Loading 3ds models ***********************************
+            // 8 floats format per vertex (x, y, z, A, B, C, u, v)
+            model0 = Load3DS("../../models/trees.3ds", &num_vertex0);
+            break;
+		}
+
+		case TUNNEL_ID: {  // Road creation
+
+            memcpy(colors[0], colorsr_c, 8*sizeof(float));
+            //************************ Loading 3ds models ***********************************
+            // 8 floats format per vertex (x, y, z, A, B, C, u, v)
+            model0 = Load3DS("../../models/tunel.3ds", &num_vertex0);
+
+            break;
+		}
+
+		case BOLLARDS_ID: {  // Road creation
+
+            memcpy(colors[0], colors_floor, 8*sizeof(float));
+            //************************ Loading 3ds models ***********************************
+            // 8 floats format per vertex (x, y, z, A, B, C, u, v)
+            model0 = Load3DS("../../models/bollards.3ds", &num_vertex0);
+
             break;
 		}
 	} // switch
@@ -219,7 +272,13 @@ void __fastcall TPrimitive::Render(int selection, bool reflex)
             }
         }
 
-        case PLATFORM_ID: {
+        case PLATFORM_ID:
+        case FLOOR_ID:
+        case RIVER_ID:
+        case MOUNTAINS_ID:
+        case TREES_ID:
+        case TUNNEL_ID:
+        {
             if (scene.show_road) {
 
                 // ModelView calculation
@@ -244,19 +303,12 @@ void __fastcall TPrimitive::Render(int selection, bool reflex)
 
                 glDrawArrays(GL_TRIANGLES, 0, num_vertex0);
 
-                // Pintar las líneas
-                glUniform4fv(scene.uColorLocation, 1, colors[1]);
-
-                // associate vertex and its normals
-                glVertexAttribPointer(scene.aPositionLocation, POSITION_COMPONENT_COUNT, GL_FLOAT, false, STRIDE, model1);
-                glVertexAttribPointer(scene.aNormalLocation, NORMAL_COMPONENT_COUNT, GL_FLOAT, false, STRIDE, model1+3);
-
-                glDrawArrays(GL_TRIANGLES, 0, num_vertex1);
-
-
             }
             break;
         }
+
+        default:
+            std::cout<<"There is no ID for this:"<<type<<std::endl;
     } // switch
 
 }

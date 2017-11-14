@@ -27,9 +27,16 @@
 #include <glm/gtc/type_ptr.hpp>
 
 // Internal ids for objects
-#define ROAD_ID        10
-#define CAR_ID	       100
-#define PLATFORM_ID   105
+#define ROAD_ID          10
+#define CAR_ID	        100
+#define PLATFORM_ID     105
+#define FLOOR_ID        110
+#define RIVER_ID        115
+#define MOUNTAINS_ID    120
+#define TREES_ID        125
+#define TUNNEL_ID       130
+#define BOLLARDS_ID     135
+
 
 // TGui callbacks IDs
 #define LIGHT0_ENABLED_ID    200
