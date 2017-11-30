@@ -153,7 +153,7 @@ int main(int argc, char* argv[])
 
 
     scene.AddCar(car1);
-    scene.AddCar(car2);
+    //scene.AddCar(car2);
     scene.AddObject(road);
     scene.AddObject(platform);
     scene.AddObject(floor);
