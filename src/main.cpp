@@ -42,6 +42,11 @@
 
 #include "Objects.h"
 #include <GL\glui.h>
+#include <iostream>
+
+#define speed 0.05
+
+int keys[4] = {0,0,0,0};
 
 /**************************************** myGlutKeyboard() **********/
 
@@ -49,10 +54,10 @@ void Keyboard(unsigned char Key, int x, int y)
 {
     switch(Key)
     {
-        case 27:
-        case 'q':
-            exit(0);
-            break;
+    case 27:
+    case 'q':
+        exit(0);
+        break;
     }
 
     glutPostRedisplay();
@@ -66,15 +71,30 @@ static void SpecialKey(int key, int x, int y)
 
     switch (key)
     {
-        case GLUT_KEY_UP:   // Car goes straight
-            car->rr+=8;
-            car->tz += 0.05;
-            break;
-        case GLUT_KEY_DOWN:   // Car goes back
-            car->rr-=8;
-            car->tz -= 0.05;
-            break;
+    case GLUT_KEY_UP:   // Car goes straight
+        car->rr+=8;
+        car->tz += speed;
+        car->dirAngle=car->turnAngle;
+        break;
+    case GLUT_KEY_DOWN:   // Car goes back
+        car->rr-=8;
+        car->tz -= speed;
+        car->dirAngle=car->turnAngle;
+        break;
     }
+
+    switch (key)
+    {
+    case GLUT_KEY_LEFT:   // Car goes straight
+        if(car->turnAngle > 50 && car->turnAngle > car->dirAngle-50 || car->turnAngle <= 50 && car->turnAngle < car->dirAngle-50)
+            car->turnAngle-=5;
+        break;
+    case GLUT_KEY_RIGHT:   // Car goes back
+        if(car->turnAngle < 310 && car->turnAngle < car->dirAngle+50 || car->turnAngle >= 310 && car->turnAngle > car->dirAngle+50)
+            car->turnAngle+=5;
+        break;
+    }
+    std::cout<<"Turn Angle: "<<car->turnAngle<<std::endl;
 
     glutPostRedisplay();
 }
@@ -83,7 +103,7 @@ static void SpecialKey(int key, int x, int y)
 
 void Menu( int value )
 {
-  Keyboard( value, 0, 0 );
+    Keyboard( value, 0, 0 );
 }
 
 void Mouse(int button, int button_state, int x, int y )
@@ -101,11 +121,13 @@ void Idle()
     gui.Idle();
 }
 
-void Reshape(int x, int y){
+void Reshape(int x, int y)
+{
     gui.Reshape(x, y);
 }
 
-void Motion(int x, int y){
+void Motion(int x, int y)
+{
     gui.Motion(x, y);
 }
 
@@ -119,7 +141,7 @@ int main(int argc, char* argv[])
     glutInitWindowPosition( 50, 50 );
     glutInitWindowSize( 1300, 600 );
 
-    int main_window = glutCreateWindow( "Forest Driving (2017)jesushf" );
+    int main_window = glutCreateWindow( "Forest Driving (2017) @jesushf_" );
 
     // Initialize OpenGL values for this Application
     scene.InitGL();
@@ -137,9 +159,10 @@ int main(int argc, char* argv[])
 
     // Create objects
     int object_id = 0;
-    TPrimitive *road        = new TPrimitive(object_id++, ROAD_ID);
     TPrimitive *car1        = new TPrimitive(object_id++, CAR_ID);
     TPrimitive *car2        = new TPrimitive(object_id++, CAR_ID);
+    car2->tx += 3;
+    TPrimitive *road        = new TPrimitive(object_id++, ROAD_ID);
     TPrimitive *platform    = new TPrimitive(object_id++, PLATFORM_ID);
     TPrimitive *floor       = new TPrimitive(object_id++, FLOOR_ID);
     TPrimitive *floor2      = new TPrimitive(object_id++, FLOOR2_ID);
@@ -153,7 +176,7 @@ int main(int argc, char* argv[])
 
 
     scene.AddCar(car1);
-    //scene.AddCar(car2);
+    scene.AddCar(car2);
     scene.AddObject(road);
     scene.AddObject(platform);
     scene.AddObject(floor);

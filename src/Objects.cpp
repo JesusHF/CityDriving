@@ -82,6 +82,9 @@ TPrimitive::TPrimitive(int DL, int t)
 		}
 		case CAR_ID: { // Car creation
 
+            dirAngle = Angle(0);
+            turnAngle = Angle(0);
+
 		    tx = -1.0;
 		    memcpy(colors, colorsc_c, 8*sizeof(float));
             //************************ Loading 3ds models ***********************************
@@ -248,10 +251,11 @@ void __fastcall TPrimitive::Render(int selection, bool reflex)
                 glVertexAttribPointer(scene.aPositionLocation, POSITION_COMPONENT_COUNT, GL_FLOAT, false, STRIDE, model1);
                 glVertexAttribPointer(scene.aNormalLocation, NORMAL_COMPONENT_COUNT, GL_FLOAT, false, STRIDE, model1+3);
 
-                // TOP LEFT WHEEL : Matrix model calculation
+                // TOP RIGHT WHEEL : Matrix model calculation
                 modelMatrix     = glm::mat4(1.0f); // identity matrix
 
                 modelMatrix     = glm::translate(modelMatrix, glm::vec3(tx+wheel_x_offset+x_left, ty+wheel_y_offset, tz+wheel_z_offset));
+                modelMatrix     = glm::rotate(modelMatrix, (float) glm::radians(turnAngle.getAlpha()), glm::vec3(0,1,0));
                 modelMatrix     = glm::rotate(modelMatrix, (float) glm::radians(rr), glm::vec3(1,0,0));      // radians
 
                 modelViewMatrix = scene.viewMatrix * modelMatrix;
@@ -261,9 +265,10 @@ void __fastcall TPrimitive::Render(int selection, bool reflex)
 
                 glDrawArrays(GL_TRIANGLES, 0, num_vertex1);
 
-                // TOP RIGHT WHEEL : Matrix model calculation
+                // TOP LEFT WHEEL : Matrix model calculation
                 modelMatrix     = glm::mat4(1.0f); // identity matrix
                 modelMatrix     = glm::translate(modelMatrix, glm::vec3(tx+wheel_x_offset-x_right, ty+wheel_y_offset, tz+wheel_z_offset));
+                modelMatrix     = glm::rotate(modelMatrix, (float) glm::radians(turnAngle.getAlpha()), glm::vec3(0,1,0));
                 modelMatrix     = glm::rotate(modelMatrix, (float) glm::radians(rr), glm::vec3(1,0,0));
                 modelMatrix     = glm::rotate(modelMatrix, (float) glm::radians(180.0), glm::vec3(0,0,1));   // radians
 
@@ -341,8 +346,8 @@ void __fastcall TPrimitive::Render(int selection, bool reflex)
             break;
         }
 
-        default:
-            std::cout<<"There is no ID for this:"<<type<<std::endl;
+        //default:
+            //std::cout<<"There is no ID for this:"<<type<<std::endl;
     } // switch
 
 }

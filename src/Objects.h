@@ -75,28 +75,124 @@
 #define U_COLOR                 "u_Color"
 #define U_LUZ0                  "u_Luz0"
 
+
+//************************************************************** Class Angle
+
+class Angle
+{
+public:
+    Angle() : alpha(0) {}
+    Angle(uint16_t angle) : alpha(angle) {}
+    Angle(const Angle& other) : alpha(other.alpha) {}
+
+    void operator=(const Angle& other)
+    {
+        alpha = other.alpha;
+    }
+
+    uint16_t getAlpha()
+    {
+        return alpha;
+    }
+
+    uint16_t operator-(uint16_t angle)
+    {
+        return alpha-angle < 0? alpha-angle+360 : alpha-angle;
+    }
+    Angle operator-=(uint16_t angle)
+    {
+        int aux = alpha-angle;
+        if (aux < 0)
+            alpha+=360;
+        alpha-=angle;
+    }
+    uint16_t operator+(uint16_t angle)
+    {
+        return alpha+angle < 0? alpha+angle-360 : alpha+angle;
+    }
+    Angle operator+=(uint16_t angle)
+    {
+        alpha+=angle;
+        if (alpha > 360)
+            alpha-=360;
+    }
+    bool operator<(Angle angle)
+    {
+        return alpha < angle.alpha? true : false;
+    }
+    bool operator>(Angle angle)
+    {
+        return alpha > angle.alpha? true : false;
+    }
+    bool operator<(int angle)
+    {
+        if(angle>360)
+            angle-=360;
+        else if(angle<0)
+            angle+=360;
+        return alpha < angle? true : false;
+    }
+    bool operator>(int angle)
+    {
+        if(angle>360)
+            angle-=360;
+        else if(angle<0)
+            angle+=360;
+        return alpha > angle? true : false;
+    }
+    bool operator<=(int angle)
+    {
+        if(angle>360)
+            angle-=360;
+        else if(angle<0)
+            angle+=360;
+        return alpha <= angle? true : false;
+    }
+    bool operator>=(int angle)
+    {
+        if(angle>360)
+            angle-=360;
+        else if(angle<0)
+            angle+=360;
+        return alpha >= angle? true : false;
+    }
+
+
+    friend std::ostream& operator << (std::ostream &o,Angle &a)
+    {
+        o << a.alpha;
+        return o;
+    }
+
+private:
+    uint16_t alpha;
+
+};
+
 //************************************************************** Clase TPrimtiva
 
 class TPrimitive
 {
 public: // Class attributes
-		int ID;				    // DisplayLists
-		int type;               // Object type
-		float tx,ty,tz; 	    // Object position
-		float sx,sy,sz; 	    // Object scale
-		float rx,ry,rz;     	// Object rotation
-		float rr;               // Wheel rotation
-		float colors[2][4];    // RGB Color and Alfa channel
+    int ID;				    // DisplayLists
+    int type;               // Object type
+    float tx,ty,tz; 	    // Object position
+    float sx,sy,sz; 	    // Object scale
+    float rx,ry,rz;     	// Object rotation
+    float rr;               // Wheel rotation
+    Angle dirAngle;
+    Angle turnAngle;
+    float colors[2][4];    // RGB Color and Alfa channel
 
-		float   *model0;        // model to render
-		int     num_vertex0;   // vertex number
+    float   *model0;        // model to render
+    int     num_vertex0;   // vertex number
 
-        float   *model1;        // second model to render
-		int     num_vertex1;   // vertex number
+    float   *model1;        // second model to render
+    int     num_vertex1;   // vertex number
 
 public: // Methods
- 		TPrimitive(int DL, int type);
-        void __fastcall Render(int selection, bool reflex=false);
+    TPrimitive(int DL, int type);
+    void __fastcall Render(int selection, bool reflex=false);
 };
 
 //************************************************************** TScene Class
@@ -104,75 +200,75 @@ public: // Methods
 class TScene
 {
 public: // Class attributes
-		int   	selection;   	// Object selected, 0=none
-        int		num_objects;    // Objects number
-        int     num_cars;       // Car number
+    int   	selection;   	// Object selected, 0=none
+    int		num_objects;    // Objects number
+    int     num_cars;       // Car number
 
-        //Up to 10 cars in scene
-        TPrimitive  *cars[10];
-        //Up to 100 objects in scene
-        TPrimitive  *objects[100];
+    //Up to 10 cars in scene
+    TPrimitive  *cars[10];
+    //Up to 100 objects in scene
+    TPrimitive  *objects[100];
 
-        // Attributes & uniforms Handles
-        int aPositionLocation;
-        int aNormalLocation;
-        int uProjectionMatrixLocation;
-        int uMVMatrixLocation;
-		int uVMatrixLocation;
-		int uColorLocation;
-		int uLuz0Location;
+    // Attributes & uniforms Handles
+    int aPositionLocation;
+    int aNormalLocation;
+    int uProjectionMatrixLocation;
+    int uMVMatrixLocation;
+    int uVMatrixLocation;
+    int uColorLocation;
+    int uLuz0Location;
 
-		glm::mat4 projectionMatrix; // Stores Projection matrix
-        glm::mat4 viewMatrix;       // Stores View matrix (camera)
+    glm::mat4 projectionMatrix; // Stores Projection matrix
+    glm::mat4 viewMatrix;       // Stores View matrix (camera)
 
-		Program  *shaderProgram;    // Stores OpenGL program (ShaderProgram)
+    Program  *shaderProgram;    // Stores OpenGL program (ShaderProgram)
 
-        // Lights and materials vectors
-        GLfloat light0_ambient[4];
-        GLfloat light0_diffuse[4];
-        GLfloat light0_specular[4];
-        GLfloat light0_position[4];
+    // Lights and materials vectors
+    GLfloat light0_ambient[4];
+    GLfloat light0_diffuse[4];
+    GLfloat light0_specular[4];
+    GLfloat light0_position[4];
 
-        GLfloat light1_ambient[4];
-        GLfloat light1_diffuse[4];
-        GLfloat light1_specular[4];
-        GLfloat light1_position[4];
+    GLfloat light1_ambient[4];
+    GLfloat light1_diffuse[4];
+    GLfloat light1_specular[4];
+    GLfloat light1_position[4];
 
-        GLfloat mat_ambient[4];
-        GLfloat mat_diffuse[4];
-        GLfloat mat_specular[4];
-        GLfloat mat_shininess[1];
+    GLfloat mat_ambient[4];
+    GLfloat mat_diffuse[4];
+    GLfloat mat_specular[4];
+    GLfloat mat_shininess[1];
 
-        float   xy_aspect;
-        int     last_x, last_y;
+    float   xy_aspect;
+    int     last_x, last_y;
 
-        // live variables used by GLUI in TGui
-        int     wireframe;
-        int     z_buffer;
-        int     culling;
+    // live variables used by GLUI in TGui
+    int     wireframe;
+    int     z_buffer;
+    int     culling;
 
-        int     show_car;
-        int     show_wheels;
-        int     show_road;
+    int     show_car;
+    int     show_wheels;
+    int     show_road;
 
-        GLfloat view_position[3];
-        GLfloat view_rotate[16];
-        float   scale;
+    GLfloat view_position[3];
+    GLfloat view_rotate[16];
+    float   scale;
 
 public: // Methods
-		TScene();
+    TScene();
 
-        void __fastcall InitGL();
-		void __fastcall Render();
-		void __fastcall RenderCars(bool reflex=false);
-		void __fastcall RenderObjects(bool reflex=false);
+    void __fastcall InitGL();
+    void __fastcall Render();
+    void __fastcall RenderCars(bool reflex=false);
+    void __fastcall RenderObjects(bool reflex=false);
 
-		void __fastcall AddCar(TPrimitive *car);
-		void __fastcall AddObject(TPrimitive *object);
+    void __fastcall AddCar(TPrimitive *car);
+    void __fastcall AddObject(TPrimitive *object);
 
-		TPrimitive __fastcall *GetCar(int id);
+    TPrimitive __fastcall *GetCar(int id);
 
-		void __fastcall Pick3D(int mouse_x, int mouse_y);
+    void __fastcall Pick3D(int mouse_x, int mouse_y);
 
 
 };
@@ -182,33 +278,33 @@ public: // Methods
 class TGui
 {
 public:
-        int             window_id;
+    int             window_id;
 
-        // live variables used by GLUI
-        int             sel;
-        int             enable_panel2;
-        int             light0_enabled;
-        int             light1_enabled;
-        float           light0_intensity;
-        float           light1_intensity;
-        float           light0_position[4];
-        float           light1_position[4];
+    // live variables used by GLUI
+    int             sel;
+    int             enable_panel2;
+    int             light0_enabled;
+    int             light1_enabled;
+    float           light0_intensity;
+    float           light1_intensity;
+    float           light0_position[4];
+    float           light1_position[4];
 
-        GLUI            *glui, *glui2;
-        GLUI_Spinner    *light0_spinner;
-        GLUI_Spinner    *light1_spinner;
-        GLUI_RadioGroup *radio;
-        GLUI_Panel      *obj_panel;
-        GLUI_Rotation   *view_rot;
+    GLUI            *glui, *glui2;
+    GLUI_Spinner    *light0_spinner;
+    GLUI_Spinner    *light1_spinner;
+    GLUI_RadioGroup *radio;
+    GLUI_Panel      *obj_panel;
+    GLUI_Rotation   *view_rot;
 
 public:
-        TGui();
-        void __fastcall Init(int main_window);
-        void __fastcall ControlCallback(int control);
-        void __fastcall Idle( void );
-        void __fastcall Reshape( int x, int y  );
-        void __fastcall Motion( int x, int y  );
-        void __fastcall Mouse(int button, int button_state, int x, int y );
+    TGui();
+    void __fastcall Init(int main_window);
+    void __fastcall ControlCallback(int control);
+    void __fastcall Idle( void );
+    void __fastcall Reshape( int x, int y  );
+    void __fastcall Motion( int x, int y  );
+    void __fastcall Mouse(int button, int button_state, int x, int y );
 };
 
 //************************************************************** Variables de clase
