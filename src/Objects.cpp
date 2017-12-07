@@ -16,6 +16,7 @@
 #include <math.h>
 
 #include "load3ds.c"
+#include "loadjpeg.c"
 
 //Wheel placing variables to match car
 #define x_left              0.5
@@ -221,6 +222,7 @@ void __fastcall TPrimitive::Render(int selection, bool reflex)
 
                 // draw road
                 glUniform4fv(scene.uColorLocation, 1, colors[0]);
+                //glUniform1i(scene.uTextureUnitLocation, scene.textures[4]);
 
                 // associate vertex and its normals
                 glVertexAttribPointer(scene.aPositionLocation, POSITION_COMPONENT_COUNT, GL_FLOAT, false, STRIDE, model0);
@@ -268,6 +270,7 @@ void __fastcall TPrimitive::Render(int selection, bool reflex)
                 modelMatrix     = glm::translate(modelMatrix, glm::vec3(tx+wheel_x_offset+x_left, ty, tz+wheel_z_offset));
                 modelMatrix     = glm::rotate(modelMatrix, (float) glm::radians(turnAngle), glm::vec3(0,1,0));
                 modelMatrix     = glm::rotate(modelMatrix, (float) glm::radians(rr), glm::vec3(1,0,0));      // radians
+                //modelMatrix     = glm::rotate()
 
                 modelViewMatrix = scene.viewMatrix * modelMatrix;
 
@@ -449,6 +452,8 @@ void __fastcall TScene::InitGL()
     uMVMatrixLocation=shaderProgram->uniform(U_MVMATRIX);
     uVMatrixLocation=shaderProgram->uniform(U_VMATRIX);
     uColorLocation=shaderProgram->uniform(U_COLOR);
+    //uTextureUnitLocation=shaderProgram->uniform(U_TEXTUREUNITLOCATION);
+
     uLuz0Location=shaderProgram->uniform(U_LUZ0);
 
     /*
@@ -471,6 +476,20 @@ void __fastcall TScene::InitGL()
     xy_aspect = (float)tw / (float)th;
     projectionMatrix = glm::perspective(45.0f, xy_aspect, 0.1f, 1000.0f);
     glUniformMatrix4fv(uProjectionMatrixLocation, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
+
+
+    //Loading textures
+    glGenTextures(10, textures);
+    LoadTexture("../../models/textures/textura_coche.jpg", 0);
+    LoadTexture("../../models/textures/textura_rueda.jpg", 1);
+    LoadTexture("../../models/textures/textura_tunel.jpg", 2);
+    LoadTexture("../../models/textures/textura_arbol.jpg", 3);
+    LoadTexture("../../models/textures/textura_carretera.jpg", 4);
+    LoadTexture("../../models/textures/textura_suelo.jpg", 5);
+    LoadTexture("../../models/textures/textura_tunel.jpg", 6);
+    LoadTexture("../../models/textures/textura_peligro_salchicha.jpg", 7);
+    LoadTexture("../../models/textures/textura_senal_not.jpg", 8);
+
 }
 
 
@@ -488,6 +507,21 @@ void __fastcall TScene::AddObject(TPrimitive *object)
 {
     objects[num_objects] = object;
     num_objects++;
+}
+
+void __fastcall TScene::LoadTexture(char* path, unsigned char id){
+    unsigned char* pixeles;
+    int width, height;
+
+    pixeles = LoadJPEG(path, &width, &height);
+    glActiveTexture(GL_TEXTURE0 + textures[id]);
+    glBindTexture(GL_TEXTURE_2D, textures[id]);
+    glTexImage2D(GL_TEXTURE_2D, 0, 3, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, pixeles);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    free(pixeles);
 }
 
 /******************** TPrimitive *TScene::GetCar(int id) ********************/

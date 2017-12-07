@@ -73,6 +73,8 @@
 #define U_MVMATRIX              "u_MVMatrix"
 #define U_VMATRIX               "u_VMatrix"
 #define U_COLOR                 "u_Color"
+#define U_TEXTUREUNITLOCATION   "u_TextureUnit"
+
 #define U_LUZ0                  "u_Luz0"
 
 
@@ -207,6 +209,9 @@ public: // Class attributes
     //Up to 100 objects in scene
     TPrimitive  *objects[100];
 
+    //10 textures to load
+    GLuint textures[10];
+
     // Attributes & uniforms Handles
     int aPositionLocation;
     int aNormalLocation;
@@ -214,6 +219,8 @@ public: // Class attributes
     int uMVMatrixLocation;
     int uVMatrixLocation;
     int uColorLocation;
+    int uTextureUnitLocation;
+
     int uLuz0Location;
 
     glm::mat4 projectionMatrix; // Stores Projection matrix
@@ -249,6 +256,7 @@ public: // Class attributes
     int     show_wheels;
     int     show_road;
 
+    //camera variables
     GLfloat view_position[3];
     GLfloat view_rotate[16];
     float   scale;
@@ -263,6 +271,7 @@ public: // Methods
 
     void __fastcall AddCar(TPrimitive *car);
     void __fastcall AddObject(TPrimitive *object);
+    void __fastcall LoadTexture(char * path, unsigned char id);
 
     TPrimitive __fastcall *GetCar(int id);
 

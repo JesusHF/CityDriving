@@ -96,8 +96,8 @@ void KeyboardDown(unsigned char Key, int x, int y)
         exit(0);
 
     keys[Key]=true;
-    //std::cout<<"se pulsa: "<<Key<<" Estan pulsados: ["<<keys['w']<<","<<keys['s']<<","<<keys['a']<<","<<keys['d']<<"]"<<std::endl;
     glutPostRedisplay();
+    //std::cout<<"se pulsa: "<<Key<<" Estan pulsados: ["<<keys['w']<<","<<keys['s']<<","<<keys['a']<<","<<keys['d']<<"]"<<std::endl;
 }
 
 void KeyboardUp(unsigned char Key, int x, int y)
@@ -167,8 +167,8 @@ int main(int argc, char* argv[])
     GLUI_Master.set_glutReshapeFunc( Reshape );
 
     // Functions for key buffering
-    glutKeyboardFunc(KeyboardDown);
-    glutKeyboardUpFunc(KeyboardUp);
+    glutKeyboardFunc( KeyboardDown );
+    glutKeyboardUpFunc( KeyboardUp );
     GLUI_Master.set_glutSpecialFunc( SpecialKey );
     GLUI_Master.set_glutMouseFunc( Mouse );
     glutMotionFunc( Motion );
