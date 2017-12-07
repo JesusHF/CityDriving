@@ -30,7 +30,7 @@
 #define chasis_y_offset    0.32
 
 #define wheel_x_offset     -0.35
-#define wheel_z_offset     0.75
+#define wheel_z_offset     0
 
 #pragma GCC diagnostic ignored "-Wwrite-strings"
 
@@ -268,6 +268,7 @@ void __fastcall TPrimitive::Render(int selection, bool reflex)
                 modelMatrix     = glm::mat4(1.0f); // identity matrix
 
                 modelMatrix     = glm::translate(modelMatrix, glm::vec3(tx+wheel_x_offset+x_left, ty, tz+wheel_z_offset));
+                modelMatrix     = glm::rotate(modelMatrix, (float) glm::radians(ry), glm::vec3(0,1,0));      // radians
                 modelMatrix     = glm::rotate(modelMatrix, (float) glm::radians(turnAngle), glm::vec3(0,1,0));
                 modelMatrix     = glm::rotate(modelMatrix, (float) glm::radians(rr), glm::vec3(1,0,0));      // radians
                 //modelMatrix     = glm::rotate()
@@ -282,6 +283,7 @@ void __fastcall TPrimitive::Render(int selection, bool reflex)
                 // TOP LEFT WHEEL : Matrix model calculation
                 modelMatrix     = glm::mat4(1.0f); // identity matrix
                 modelMatrix     = glm::translate(modelMatrix, glm::vec3(tx+wheel_x_offset-x_right, ty, tz+wheel_z_offset));
+                modelMatrix     = glm::rotate(modelMatrix, (float) glm::radians(ry), glm::vec3(0,1,0));      // radians
                 modelMatrix     = glm::rotate(modelMatrix, (float) glm::radians(turnAngle), glm::vec3(0,1,0));
                 modelMatrix     = glm::rotate(modelMatrix, (float) glm::radians(rr), glm::vec3(1,0,0));
                 modelMatrix     = glm::rotate(modelMatrix, (float) glm::radians(180.0), glm::vec3(0,0,1));   // radians
@@ -296,7 +298,8 @@ void __fastcall TPrimitive::Render(int selection, bool reflex)
                 // BOT LEFT WHEEL: Matrix model calculation
                 modelMatrix     = glm::mat4(1.0f); // identity matrix
 
-                modelMatrix     = glm::translate(modelMatrix, glm::vec3(tx+wheel_x_offset+x_left, ty, tz+wheel_z_offset-zdistance));
+                modelMatrix     = glm::translate(modelMatrix, glm::vec3(tx+wheel_x_offset+(x_left*sin(PI/180 * ry)), ty, tz+wheel_z_offset-(zdistance* cos(PI/180 * ry))));
+                modelMatrix     = glm::rotate(modelMatrix, (float) glm::radians(ry), glm::vec3(0,1,0));      // radians
                 modelMatrix     = glm::rotate(modelMatrix, (float) glm::radians(rr), glm::vec3(1,0,0));      // radians
 
                 modelViewMatrix = scene.viewMatrix * modelMatrix;
@@ -308,10 +311,10 @@ void __fastcall TPrimitive::Render(int selection, bool reflex)
 
                 // BOT RIGHT WHEEL: Matrix model calculation
                 modelMatrix     = glm::mat4(1.0f); // identity matrix
-                modelMatrix     = glm::translate(modelMatrix, glm::vec3(tx+wheel_x_offset-x_right, ty, tz+wheel_z_offset-zdistance));
+                modelMatrix     = glm::translate(modelMatrix, glm::vec3(tx+wheel_x_offset-(x_right*sin(PI/180 * ry)), ty, tz+wheel_z_offset-(zdistance* cos(PI/180*ry))));
+                modelMatrix     = glm::rotate(modelMatrix, (float) glm::radians(ry), glm::vec3(0,1,0));      // radians
                 modelMatrix     = glm::rotate(modelMatrix, (float) glm::radians(rr), glm::vec3(1,0,0));
                 modelMatrix     = glm::rotate(modelMatrix, (float) glm::radians(180.0), glm::vec3(0,0,1));   // radians
-
                 modelViewMatrix = scene.viewMatrix * modelMatrix;
 
                 // send ModelView to Vertex Shader

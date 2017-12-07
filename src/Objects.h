@@ -76,6 +76,7 @@
 #define U_TEXTUREUNITLOCATION   "u_TextureUnit"
 
 #define U_LUZ0                  "u_Luz0"
+#define PI 3.14159265359
 
 
 //************************************************************** Class Angle

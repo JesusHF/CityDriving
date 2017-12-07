@@ -45,7 +45,6 @@
 #include <iostream>
 
 #define speed 0.05
-#define PI 3.14159265359
 
 bool keys[256];
 
