@@ -110,11 +110,16 @@ public:
     {
         return alpha+angle < 0? alpha+angle-360 : alpha+angle;
     }
-    Angle operator+=(uint16_t angle)
+    void operator+=(int angle)
     {
-        alpha+=angle;
-        if (alpha > 360)
-            alpha-=360;
+        int aux = alpha + angle;
+        if (aux > 360)
+            aux-=360;
+
+        if (aux < 360)
+            aux+=360;
+
+        alpha = aux;
     }
     bool operator<(Angle angle)
     {
@@ -157,13 +162,6 @@ public:
         return alpha >= angle? true : false;
     }
 
-
-    friend std::ostream& operator << (std::ostream &o,Angle &a)
-    {
-        o << a.alpha;
-        return o;
-    }
-
 private:
     uint16_t alpha;
 
@@ -181,7 +179,7 @@ public: // Class attributes
     float rx,ry,rz;     	// Object rotation
     float rr;               // Wheel rotation
     Angle dirAngle;
-    Angle turnAngle;
+    int turnAngle;
     float colors[2][4];    // RGB Color and Alfa channel
 
     float   *model0;        // model to render

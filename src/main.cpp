@@ -45,57 +45,72 @@
 #include <iostream>
 
 #define speed 0.05
+#define PI 3.14159265359
 
-int keys[4] = {0,0,0,0};
+bool keys[256];
 
-/**************************************** myGlutKeyboard() **********/
+/**************************************** carUpdate() **********/
 
-void Keyboard(unsigned char Key, int x, int y)
+void updateCar()
 {
-    switch(Key)
+    TPrimitive *car = scene.GetCar(scene.selection);
+
+    if(keys['w'])    // Car goes straight
     {
-    case 27:
-    case 'q':
-        exit(0);
-        break;
+        car->rr+=8;
+        car->dirAngle+=car->turnAngle;
+        car->tx += speed * sin((PI/180)*car->dirAngle.getAlpha());
+        car->tz += speed * cos((PI/180)*car->dirAngle.getAlpha());
+        car->turnAngle = 0;
+        car->ry = car->dirAngle.getAlpha();
+    }
+    else if(keys['s'])
+    {
+        car->rr-=8;
+        car->dirAngle+=car->turnAngle;
+        car->tx -= speed * sin((PI/180)*car->dirAngle.getAlpha());
+        car->tz -= speed * cos((PI/180)*car->dirAngle.getAlpha());
+        car->turnAngle = 0;
+        car->ry = car->dirAngle.getAlpha();
     }
 
+    if (keys['a'])            // Car goes straight
+    {
+        if(car->turnAngle > -50)
+            car->turnAngle-=5;
+    }
+    else if(keys['d'])       // Car goes back
+    {
+        if(car->turnAngle < 50)
+            car->turnAngle+=5;
+    }
+    //std::cout<<"Tangle: "<<car->turnAngle<<" Dangle: "<<car->dirAngle.getAlpha()<<" x: "<<car->tx<<" y: "<<car->tz<<" "<<std::endl;
+
+}
+
+
+/**************************************** myGlutKeyboard() **********/
+void KeyboardDown(unsigned char Key, int x, int y)
+{
+    if(Key == '')
+        exit(0);
+
+    keys[Key]=true;
+    //std::cout<<"se pulsa: "<<Key<<" Estan pulsados: ["<<keys['w']<<","<<keys['s']<<","<<keys['a']<<","<<keys['d']<<"]"<<std::endl;
     glutPostRedisplay();
+}
+
+void KeyboardUp(unsigned char Key, int x, int y)
+{
+    keys[Key]=false;
+    glutPostRedisplay();
+    //std::cout<<"se suelta: "<<Key<<" Estan pulsados: ["<<keys['w']<<","<<keys['s']<<","<<keys['a']<<","<<keys['d']<<"]"<<std::endl;
 }
 
 /**************************************** mySpecialKey() *************/
 
 static void SpecialKey(int key, int x, int y)
 {
-    TPrimitive *car = scene.GetCar(scene.selection);
-
-    switch (key)
-    {
-    case GLUT_KEY_UP:   // Car goes straight
-        car->rr+=8;
-        car->tz += speed;
-        car->dirAngle=car->turnAngle;
-        break;
-    case GLUT_KEY_DOWN:   // Car goes back
-        car->rr-=8;
-        car->tz -= speed;
-        car->dirAngle=car->turnAngle;
-        break;
-    }
-
-    switch (key)
-    {
-    case GLUT_KEY_LEFT:   // Car goes straight
-        if(car->turnAngle > 50 && car->turnAngle > car->dirAngle-50 || car->turnAngle <= 50 && car->turnAngle < car->dirAngle-50)
-            car->turnAngle-=5;
-        break;
-    case GLUT_KEY_RIGHT:   // Car goes back
-        if(car->turnAngle < 310 && car->turnAngle < car->dirAngle+50 || car->turnAngle >= 310 && car->turnAngle > car->dirAngle+50)
-            car->turnAngle+=5;
-        break;
-    }
-    std::cout<<"Turn Angle: "<<car->turnAngle<<std::endl;
-
     glutPostRedisplay();
 }
 
@@ -103,7 +118,7 @@ static void SpecialKey(int key, int x, int y)
 
 void Menu( int value )
 {
-    Keyboard( value, 0, 0 );
+    KeyboardDown( value, 0, 0 );
 }
 
 void Mouse(int button, int button_state, int x, int y )
@@ -119,6 +134,7 @@ void Render()
 void Idle()
 {
     gui.Idle();
+    updateCar();
 }
 
 void Reshape(int x, int y)
@@ -149,7 +165,10 @@ int main(int argc, char* argv[])
 
     glutDisplayFunc( Render );
     GLUI_Master.set_glutReshapeFunc( Reshape );
-    GLUI_Master.set_glutKeyboardFunc( Keyboard );
+
+    // Functions for key buffering
+    glutKeyboardFunc(KeyboardDown);
+    glutKeyboardUpFunc(KeyboardUp);
     GLUI_Master.set_glutSpecialFunc( SpecialKey );
     GLUI_Master.set_glutMouseFunc( Mouse );
     glutMotionFunc( Motion );
