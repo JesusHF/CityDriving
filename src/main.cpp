@@ -179,7 +179,7 @@ int main(int argc, char* argv[])
     int object_id = 0;
     TPrimitive *car1        = new TPrimitive(object_id++, CAR_ID);
     TPrimitive *car2        = new TPrimitive(object_id++, CAR_ID);
-    car2->tx += 3;
+    car1->tx += 3;
     TPrimitive *road        = new TPrimitive(object_id++, ROAD_ID);
     TPrimitive *platform    = new TPrimitive(object_id++, PLATFORM_ID);
     TPrimitive *floor       = new TPrimitive(object_id++, FLOOR_ID);

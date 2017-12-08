@@ -20,7 +20,7 @@
 
 //Wheel placing variables to match car
 #define x_left              0.5
-#define x_right            -0.2
+#define x_right             0.15
 #define zdistance           1.05
 
 #define car_x_offset        0
@@ -28,9 +28,7 @@
 #define car_z_offset       -28.05545
 
 #define chasis_y_offset    0.32
-
 #define wheel_x_offset     -0.35
-#define wheel_z_offset     0
 
 #pragma GCC diagnostic ignored "-Wwrite-strings"
 
@@ -76,302 +74,323 @@ TPrimitive::TPrimitive(int DL, int t)
 
     sx = sy = sz = 1;
     rx = ry = rz = 0;
-	tx = ty = tz = 0;
+    tx = ty = tz = 0;
 
-	switch (type) {
-		case ROAD_ID: {  // Road creation
+    switch (type)
+    {
+    case ROAD_ID:    // Road creation
+    {
 
-            memcpy(colors[0], colorsr_c, 8*sizeof(float));
-            //************************ Loading 3ds models ***********************************
-            // 8 floats format per vertex (x, y, z, A, B, C, u, v)
-            model0 = Load3DS("../../models/carretera.3ds", &num_vertex0);
+        memcpy(colors[0], colorsr_c, 8*sizeof(float));
+        //************************ Loading 3ds models ***********************************
+        // 8 floats format per vertex (x, y, z, A, B, C, u, v)
+        model0 = Load3DS("../../models/carretera.3ds", &num_vertex0);
 
-            break;
-		}
-		case CAR_ID: { // Car creation
+        break;
+    }
+    case CAR_ID:   // Car creation
+    {
 
-            tx = car_x_offset;
-            ty = car_y_offset;
-            tz = car_z_offset;
+        tx = car_x_offset;
+        ty = car_y_offset;
+        tz = car_z_offset;
 
-            dirAngle = Angle(0);
-            turnAngle = 0;
+        dirAngle = Angle(0);
+        turnAngle = 0;
 
-		    memcpy(colors, colorsc_c, 8*sizeof(float));
-            //************************ Loading 3ds models ***********************************
-            // 8 floats format per vertex (x, y, z, A, B, C, u, v)
-            model0 = Load3DS("../../models/coche_salchicha.3ds", &num_vertex0);
-            model1 = Load3DS("../../models/rueda.3ds", &num_vertex1);
-            break;
-		}
+        memcpy(colors, colorsc_c, 8*sizeof(float));
+        //************************ Loading 3ds models ***********************************
+        // 8 floats format per vertex (x, y, z, A, B, C, u, v)
+        model0 = Load3DS("../../models/coche_salchicha.3ds", &num_vertex0);
+        model1 = Load3DS("../../models/rueda.3ds", &num_vertex1);
+        break;
+    }
 
-		case PLATFORM_ID: { // Platform
+    case PLATFORM_ID:   // Platform
+    {
 
-		    memcpy(colors, colors_platf, 8*sizeof(float));
-            //************************ Loading 3ds models ***********************************
-            // 8 floats format per vertex (x, y, z, A, B, C, u, v)
-            model0 = Load3DS("../../models/platform.3ds", &num_vertex0);
-            break;
-		}
+        memcpy(colors, colors_platf, 8*sizeof(float));
+        //************************ Loading 3ds models ***********************************
+        // 8 floats format per vertex (x, y, z, A, B, C, u, v)
+        model0 = Load3DS("../../models/platform.3ds", &num_vertex0);
+        break;
+    }
 
-        case FLOOR_ID: { // Platform
+    case FLOOR_ID:   // Platform
+    {
 
-		    memcpy(colors, colors_floor, 8*sizeof(float));
-            //************************ Loading 3ds models ***********************************
-            // 8 floats format per vertex (x, y, z, A, B, C, u, v)
-            model0 = Load3DS("../../models/floor.3ds", &num_vertex0);
-            break;
-		}
+        memcpy(colors, colors_floor, 8*sizeof(float));
+        //************************ Loading 3ds models ***********************************
+        // 8 floats format per vertex (x, y, z, A, B, C, u, v)
+        model0 = Load3DS("../../models/floor.3ds", &num_vertex0);
+        break;
+    }
 
-		case FLOOR2_ID: { // Platform
+    case FLOOR2_ID:   // Platform
+    {
 
-		    memcpy(colors, colors_floor, 8*sizeof(float));
-            //************************ Loading 3ds models ***********************************
-            // 8 floats format per vertex (x, y, z, A, B, C, u, v)
-            model0 = Load3DS("../../models/floor2.3ds", &num_vertex0);
-            break;
-		}
+        memcpy(colors, colors_floor, 8*sizeof(float));
+        //************************ Loading 3ds models ***********************************
+        // 8 floats format per vertex (x, y, z, A, B, C, u, v)
+        model0 = Load3DS("../../models/floor2.3ds", &num_vertex0);
+        break;
+    }
 
-        case RIVER_ID: { // Platform
+    case RIVER_ID:   // Platform
+    {
 
-		    tx = ty = tz = 0;
-		    memcpy(colors, colors_river, 8*sizeof(float));
+        tx = ty = tz = 0;
+        memcpy(colors, colors_river, 8*sizeof(float));
 
-            //************************ Loading 3ds models ***********************************
-            // 8 floats format per vertex (x, y, z, A, B, C, u, v)
-            model0 = Load3DS("../../models/rio.3ds", &num_vertex0);
-            break;
-		}
+        //************************ Loading 3ds models ***********************************
+        // 8 floats format per vertex (x, y, z, A, B, C, u, v)
+        model0 = Load3DS("../../models/rio.3ds", &num_vertex0);
+        break;
+    }
 
-        case MOUNTAINS_ID: { // Platform
+    case MOUNTAINS_ID:   // Platform
+    {
 
-		    memcpy(colors, colors_mount, 8*sizeof(float));
-            //************************ Loading 3ds models ***********************************
-            // 8 floats format per vertex (x, y, z, A, B, C, u, v)
-            model0 = Load3DS("../../models/mountains.3ds", &num_vertex0);
-            break;
-		}
+        memcpy(colors, colors_mount, 8*sizeof(float));
+        //************************ Loading 3ds models ***********************************
+        // 8 floats format per vertex (x, y, z, A, B, C, u, v)
+        model0 = Load3DS("../../models/mountains.3ds", &num_vertex0);
+        break;
+    }
 
-        case TREES_ID: { // Platform
+    case TREES_ID:   // Platform
+    {
 
-		    memcpy(colors, colors_mount, 8*sizeof(float));
-            //************************ Loading 3ds models ***********************************
-            // 8 floats format per vertex (x, y, z, A, B, C, u, v)
-            model0 = Load3DS("../../models/trees.3ds", &num_vertex0);
-            break;
-		}
+        memcpy(colors, colors_mount, 8*sizeof(float));
+        //************************ Loading 3ds models ***********************************
+        // 8 floats format per vertex (x, y, z, A, B, C, u, v)
+        model0 = Load3DS("../../models/trees.3ds", &num_vertex0);
+        break;
+    }
 
-		case TUNNEL_ID: {  // Road creation
+    case TUNNEL_ID:    // Road creation
+    {
 
-            memcpy(colors[0], colorsr_c, 8*sizeof(float));
-            //************************ Loading 3ds models ***********************************
-            // 8 floats format per vertex (x, y, z, A, B, C, u, v)
-            model0 = Load3DS("../../models/tunel.3ds", &num_vertex0);
+        memcpy(colors[0], colorsr_c, 8*sizeof(float));
+        //************************ Loading 3ds models ***********************************
+        // 8 floats format per vertex (x, y, z, A, B, C, u, v)
+        model0 = Load3DS("../../models/tunel.3ds", &num_vertex0);
 
-            break;
-		}
+        break;
+    }
 
-		case BOLLARDS_ID: {  // Road creation
+    case BOLLARDS_ID:    // Road creation
+    {
 
-            memcpy(colors[0], colors_floor, 8*sizeof(float));
-            //************************ Loading 3ds models ***********************************
-            // 8 floats format per vertex (x, y, z, A, B, C, u, v)
-            model0 = Load3DS("../../models/bollards.3ds", &num_vertex0);
+        memcpy(colors[0], colors_floor, 8*sizeof(float));
+        //************************ Loading 3ds models ***********************************
+        // 8 floats format per vertex (x, y, z, A, B, C, u, v)
+        model0 = Load3DS("../../models/bollards.3ds", &num_vertex0);
 
-            break;
-		}
+        break;
+    }
 
-		case SIGNAL1_ID: {  // Road creation
+    case SIGNAL1_ID:    // Road creation
+    {
 
-            memcpy(colors[0], colors_floor, 8*sizeof(float));
-            //************************ Loading 3ds models ***********************************
-            // 8 floats format per vertex (x, y, z, A, B, C, u, v)
-            model0 = Load3DS("../../models/signal_sausage.3ds", &num_vertex0);
+        memcpy(colors[0], colors_floor, 8*sizeof(float));
+        //************************ Loading 3ds models ***********************************
+        // 8 floats format per vertex (x, y, z, A, B, C, u, v)
+        model0 = Load3DS("../../models/signal_sausage.3ds", &num_vertex0);
 
-            break;
-		}
+        break;
+    }
 
-		case SIGNAL2_ID: {  // Road creation
+    case SIGNAL2_ID:    // Road creation
+    {
 
-            memcpy(colors[0], colors_floor, 8*sizeof(float));
-            //************************ Loading 3ds models ***********************************
-            // 8 floats format per vertex (x, y, z, A, B, C, u, v)
-            model0 = Load3DS("../../models/signal_not_sausage.3ds", &num_vertex0);
+        memcpy(colors[0], colors_floor, 8*sizeof(float));
+        //************************ Loading 3ds models ***********************************
+        // 8 floats format per vertex (x, y, z, A, B, C, u, v)
+        model0 = Load3DS("../../models/signal_not_sausage.3ds", &num_vertex0);
 
-            break;
-		}
+        break;
+    }
 
-	} // switch
+    } // switch
 }
 
 void __fastcall TPrimitive::Render(int selection, bool reflex)
 {
     glm::mat4   modelMatrix;
     glm::mat4   modelViewMatrix;
-    switch (type) {
+    switch (type)
+    {
 
-        case ROAD_ID: {
-            if (scene.show_road) {
-
-                // ModelView calculation
-                modelMatrix     = glm::mat4(1.0f); // identity matrix
-                modelViewMatrix = scene.viewMatrix * modelMatrix;
-
-                // send ModelView to Vertex Shader
-                glUniformMatrix4fv(scene.uMVMatrixLocation, 1, GL_FALSE, &modelViewMatrix[0][0]);
-
-                // draw road
-                glUniform4fv(scene.uColorLocation, 1, colors[0]);
-                //glUniform1i(scene.uTextureUnitLocation, scene.textures[4]);
-
-                // associate vertex and its normals
-                glVertexAttribPointer(scene.aPositionLocation, POSITION_COMPONENT_COUNT, GL_FLOAT, false, STRIDE, model0);
-                glVertexAttribPointer(scene.aNormalLocation, NORMAL_COMPONENT_COUNT, GL_FLOAT, false, STRIDE, model0+3);
-
-                glDrawArrays(GL_TRIANGLES, 0, num_vertex0);
-
-            }
-            break;
-        }
-        case CAR_ID: {
-
-            if (scene.show_car) {
-                glUniform4fv(scene.uColorLocation, 1, (const GLfloat *) colors[0]);
-
-                // associate vertex and its normals
-                glVertexAttribPointer(scene.aPositionLocation, POSITION_COMPONENT_COUNT, GL_FLOAT, false, STRIDE, model0);
-                glVertexAttribPointer(scene.aNormalLocation, NORMAL_COMPONENT_COUNT, GL_FLOAT, false, STRIDE, model0+3);
-
-                // Matrix model calculation
-                modelMatrix     = glm::mat4(1.0f); // identity matrix
-                modelMatrix     = glm::translate(modelMatrix,glm::vec3(tx, ty+chasis_y_offset, tz));
-                modelMatrix     = glm::rotate(modelMatrix, (float) glm::radians(ry), glm::vec3(0,1,0));
-
-                modelViewMatrix = scene.viewMatrix * modelMatrix;
-
-                // send ModelView to Vertex Shader
-                glUniformMatrix4fv(scene.uMVMatrixLocation, 1, GL_FALSE, &modelViewMatrix[0][0]);
-
-                glDrawArrays(GL_TRIANGLES, 0, num_vertex0);
-            }
-
-
-            if (scene.show_wheels)
-            {
-                glUniform4fv(scene.uColorLocation, 1, (const GLfloat *) colors[1]);
-
-                // associate vertex and its normals
-                glVertexAttribPointer(scene.aPositionLocation, POSITION_COMPONENT_COUNT, GL_FLOAT, false, STRIDE, model1);
-                glVertexAttribPointer(scene.aNormalLocation, NORMAL_COMPONENT_COUNT, GL_FLOAT, false, STRIDE, model1+3);
-
-                // TOP RIGHT WHEEL : Matrix model calculation
-                modelMatrix     = glm::mat4(1.0f); // identity matrix
-
-                modelMatrix     = glm::translate(modelMatrix, glm::vec3(tx+wheel_x_offset+x_left, ty, tz+wheel_z_offset));
-                modelMatrix     = glm::rotate(modelMatrix, (float) glm::radians(ry), glm::vec3(0,1,0));      // radians
-                modelMatrix     = glm::rotate(modelMatrix, (float) glm::radians(turnAngle), glm::vec3(0,1,0));
-                modelMatrix     = glm::rotate(modelMatrix, (float) glm::radians(rr), glm::vec3(1,0,0));      // radians
-                //modelMatrix     = glm::rotate()
-
-                modelViewMatrix = scene.viewMatrix * modelMatrix;
-
-                // send ModelView to Vertex Shader
-                glUniformMatrix4fv(scene.uMVMatrixLocation, 1, GL_FALSE, &modelViewMatrix[0][0]);
-
-                glDrawArrays(GL_TRIANGLES, 0, num_vertex1);
-
-                // TOP LEFT WHEEL : Matrix model calculation
-                modelMatrix     = glm::mat4(1.0f); // identity matrix
-                modelMatrix     = glm::translate(modelMatrix, glm::vec3(tx+wheel_x_offset-x_right, ty, tz+wheel_z_offset));
-                modelMatrix     = glm::rotate(modelMatrix, (float) glm::radians(ry), glm::vec3(0,1,0));      // radians
-                modelMatrix     = glm::rotate(modelMatrix, (float) glm::radians(turnAngle), glm::vec3(0,1,0));
-                modelMatrix     = glm::rotate(modelMatrix, (float) glm::radians(rr), glm::vec3(1,0,0));
-                modelMatrix     = glm::rotate(modelMatrix, (float) glm::radians(180.0), glm::vec3(0,0,1));   // radians
-
-                modelViewMatrix = scene.viewMatrix * modelMatrix;
-
-                // send ModelView to Vertex Shader
-                glUniformMatrix4fv(scene.uMVMatrixLocation, 1, GL_FALSE, &modelViewMatrix[0][0]);
-
-                glDrawArrays(GL_TRIANGLES, 0, num_vertex1);
-
-                // BOT LEFT WHEEL: Matrix model calculation
-                modelMatrix     = glm::mat4(1.0f); // identity matrix
-
-                modelMatrix     = glm::translate(modelMatrix, glm::vec3(tx+wheel_x_offset+(x_left*sin(PI/180 * ry)), ty, tz+wheel_z_offset-(zdistance* cos(PI/180 * ry))));
-                modelMatrix     = glm::rotate(modelMatrix, (float) glm::radians(ry), glm::vec3(0,1,0));      // radians
-                modelMatrix     = glm::rotate(modelMatrix, (float) glm::radians(rr), glm::vec3(1,0,0));      // radians
-
-                modelViewMatrix = scene.viewMatrix * modelMatrix;
-
-                // send ModelView to Vertex Shader
-                glUniformMatrix4fv(scene.uMVMatrixLocation,1, GL_FALSE, &modelViewMatrix[0][0]);
-
-                glDrawArrays(GL_TRIANGLES, 0, num_vertex1);
-
-                // BOT RIGHT WHEEL: Matrix model calculation
-                modelMatrix     = glm::mat4(1.0f); // identity matrix
-                modelMatrix     = glm::translate(modelMatrix, glm::vec3(tx+wheel_x_offset-(x_right*sin(PI/180 * ry)), ty, tz+wheel_z_offset-(zdistance* cos(PI/180*ry))));
-                modelMatrix     = glm::rotate(modelMatrix, (float) glm::radians(ry), glm::vec3(0,1,0));      // radians
-                modelMatrix     = glm::rotate(modelMatrix, (float) glm::radians(rr), glm::vec3(1,0,0));
-                modelMatrix     = glm::rotate(modelMatrix, (float) glm::radians(180.0), glm::vec3(0,0,1));   // radians
-                modelViewMatrix = scene.viewMatrix * modelMatrix;
-
-                // send ModelView to Vertex Shader
-                glUniformMatrix4fv(scene.uMVMatrixLocation,1, GL_FALSE, &modelViewMatrix[0][0]);
-
-                glDrawArrays(GL_TRIANGLES, 0, num_vertex1);
-                break;
-            }
-        }
-
-        case PLATFORM_ID:
-        case FLOOR_ID:
-        case FLOOR2_ID:
-        case RIVER_ID:
-        case MOUNTAINS_ID:
-        case TREES_ID:
-        case TUNNEL_ID:
-        case SIGNAL1_ID:
-        case SIGNAL2_ID:
+    case ROAD_ID:
+    {
+        if (scene.show_road)
         {
-            if (scene.show_road) {
 
-                // ModelView calculation
-                modelMatrix     = glm::mat4(1.0f); // matriz identidad
-                modelViewMatrix = scene.viewMatrix * modelMatrix;
+            // ModelView calculation
+            modelMatrix     = glm::mat4(1.0f); // identity matrix
+            modelViewMatrix = scene.viewMatrix * modelMatrix;
 
-                // send ModelView to Vertex Shader
-                glUniformMatrix4fv(scene.uMVMatrixLocation, 1, GL_FALSE, &modelViewMatrix[0][0]);
+            // send ModelView to Vertex Shader
+            glUniformMatrix4fv(scene.uMVMatrixLocation, 1, GL_FALSE, &modelViewMatrix[0][0]);
 
-                // Matrix model calculation
-                modelMatrix     = glm::mat4(1.0f); // matriz identidad
-                modelMatrix     = glm::translate(modelMatrix,glm::vec3(tx, ty, tz));
+            // draw road
+            glUniform4fv(scene.uColorLocation, 1, colors[0]);
+            //glUniform1i(scene.uTextureUnitLocation, scene.textures[4]);
 
-                modelViewMatrix = scene.viewMatrix * modelMatrix;
+            // associate vertex and its normals
+            glVertexAttribPointer(scene.aPositionLocation, POSITION_COMPONENT_COUNT, GL_FLOAT, false, STRIDE, model0);
+            glVertexAttribPointer(scene.aNormalLocation, NORMAL_COMPONENT_COUNT, GL_FLOAT, false, STRIDE, model0+3);
 
-                // draw road
-                glUniform4fv(scene.uColorLocation, 1, colors[0]);
+            glDrawArrays(GL_TRIANGLES, 0, num_vertex0);
 
-                // associate vertex and its normals
-                glVertexAttribPointer(scene.aPositionLocation, POSITION_COMPONENT_COUNT, GL_FLOAT, false, STRIDE, model0);
-                glVertexAttribPointer(scene.aNormalLocation, NORMAL_COMPONENT_COUNT, GL_FLOAT, false, STRIDE, model0+3);
+        }
+        break;
+    }
+    case CAR_ID:
+    {
 
-                glDrawArrays(GL_TRIANGLES, 0, num_vertex0);
+        if (scene.show_car)
+        {
+            glUniform4fv(scene.uColorLocation, 1, (const GLfloat *) colors[0]);
 
-            }
+            // associate vertex and its normals
+            glVertexAttribPointer(scene.aPositionLocation, POSITION_COMPONENT_COUNT, GL_FLOAT, false, STRIDE, model0);
+            glVertexAttribPointer(scene.aNormalLocation, NORMAL_COMPONENT_COUNT, GL_FLOAT, false, STRIDE, model0+3);
+
+            // Matrix model calculation
+            modelMatrix     = glm::mat4(1.0f); // identity matrix
+            modelMatrix     = glm::translate(modelMatrix,glm::vec3(tx, ty+chasis_y_offset, tz));
+            modelMatrix     = glm::rotate(modelMatrix, (float) glm::radians(ry), glm::vec3(0,1,0));
+
+            modelViewMatrix = scene.viewMatrix * modelMatrix;
+
+            // send ModelView to Vertex Shader
+            glUniformMatrix4fv(scene.uMVMatrixLocation, 1, GL_FALSE, &modelViewMatrix[0][0]);
+
+            glDrawArrays(GL_TRIANGLES, 0, num_vertex0);
+        }
+
+
+        if (scene.show_wheels)
+        {
+            glUniform4fv(scene.uColorLocation, 1, (const GLfloat *) colors[1]);
+
+            // associate vertex and its normals
+            glVertexAttribPointer(scene.aPositionLocation, POSITION_COMPONENT_COUNT, GL_FLOAT, false, STRIDE, model1);
+            glVertexAttribPointer(scene.aNormalLocation, NORMAL_COMPONENT_COUNT, GL_FLOAT, false, STRIDE, model1+3);
+
+            // TOP RIGHT WHEEL : Matrix model calculation
+            modelMatrix     = glm::mat4(1.0f); // identity matrix
+
+            modelMatrix     = glm::translate(modelMatrix, glm::vec3(tx, ty, tz));
+            modelMatrix     = glm::translate(modelMatrix, glm::vec3(cos(PI/180 * ry)* x_right + sin(PI/180 * ry)*zdistance, 0, cos(PI/180 * ry) * zdistance + sin(PI/180 * ry) * -x_right));
+            modelMatrix     = glm::rotate(modelMatrix, (float) glm::radians(ry), glm::vec3(0,1,0));      // radians
+            modelMatrix     = glm::rotate(modelMatrix, (float) glm::radians(turnAngle), glm::vec3(0,1,0));
+            modelMatrix     = glm::rotate(modelMatrix, (float) glm::radians(rr), glm::vec3(1,0,0));      // radians
+            //modelMatrix     = glm::rotate()
+
+            modelViewMatrix = scene.viewMatrix * modelMatrix;
+
+            // send ModelView to Vertex Shader
+            glUniformMatrix4fv(scene.uMVMatrixLocation, 1, GL_FALSE, &modelViewMatrix[0][0]);
+
+            glDrawArrays(GL_TRIANGLES, 0, num_vertex1);
+
+            // TOP LEFT WHEEL : Matrix model calculation
+            modelMatrix     = glm::mat4(1.0f); // identity matrix
+            modelMatrix     = glm::translate(modelMatrix, glm::vec3(tx, ty, tz));
+            modelMatrix     = glm::translate(modelMatrix, glm::vec3(cos(PI/180 * ry)* -x_right + sin(PI/180 * ry)*zdistance, 0, cos(PI/180 * ry) * zdistance + sin(PI/180 * ry) * x_right));
+            modelMatrix     = glm::rotate(modelMatrix, (float) glm::radians(ry), glm::vec3(0,1,0));      // radians
+            modelMatrix     = glm::rotate(modelMatrix, (float) glm::radians(turnAngle), glm::vec3(0,1,0));
+            modelMatrix     = glm::rotate(modelMatrix, (float) glm::radians(rr), glm::vec3(1,0,0));
+            modelMatrix     = glm::rotate(modelMatrix, (float) glm::radians(180.0), glm::vec3(0,0,1));   // radians
+
+            modelViewMatrix = scene.viewMatrix * modelMatrix;
+
+            // send ModelView to Vertex Shader
+
+            glUniformMatrix4fv(scene.uMVMatrixLocation, 1, GL_FALSE, &modelViewMatrix[0][0]);
+            glDrawArrays(GL_TRIANGLES, 0, num_vertex1);
+
+            // BOT LEFT WHEEL: Matrix model calculation
+            modelMatrix     = glm::mat4(1.0f); // identity matrix
+            modelMatrix     = glm::translate(modelMatrix, glm::vec3(tx + x_right * cos(PI/180 * ry), ty, tz - x_right * sin(PI/180 * ry)));
+            modelMatrix     = glm::rotate(modelMatrix, (float) glm::radians(ry), glm::vec3(0,1,0));      // radians
+            modelMatrix     = glm::rotate(modelMatrix, (float) glm::radians(rr), glm::vec3(1,0,0));      // radians
+
+            modelViewMatrix = scene.viewMatrix * modelMatrix;
+
+            // send ModelView to Vertex Shader
+            glUniformMatrix4fv(scene.uMVMatrixLocation,1, GL_FALSE, &modelViewMatrix[0][0]);
+
+            glDrawArrays(GL_TRIANGLES, 0, num_vertex1);
+
+            // BOT RIGHT WHEEL: Matrix model calculation
+            modelMatrix     = glm::mat4(1.0f); // identity matrix
+            modelMatrix     = glm::translate(modelMatrix, glm::vec3(tx - x_right * cos(PI/180 * ry), ty, tz + x_right * sin(PI/180 * ry)));
+            modelMatrix     = glm::rotate(modelMatrix, (float) glm::radians(ry), glm::vec3(0,1,0));      // radians
+            modelMatrix     = glm::rotate(modelMatrix, (float) glm::radians(rr), glm::vec3(1,0,0));
+            modelMatrix     = glm::rotate(modelMatrix, (float) glm::radians(180.0), glm::vec3(0,0,1));   // radians
+            modelViewMatrix = scene.viewMatrix * modelMatrix;
+
+            // send ModelView to Vertex Shader
+            glUniformMatrix4fv(scene.uMVMatrixLocation,1, GL_FALSE, &modelViewMatrix[0][0]);
+
+            glDrawArrays(GL_TRIANGLES, 0, num_vertex1);
             break;
         }
+    }
+
+    case PLATFORM_ID:
+    case FLOOR_ID:
+    case FLOOR2_ID:
+    case RIVER_ID:
+    case MOUNTAINS_ID:
+    case TREES_ID:
+    case TUNNEL_ID:
+    case SIGNAL1_ID:
+    case SIGNAL2_ID:
+    {
+        if (scene.show_road)
+        {
+
+            // ModelView calculation
+            modelMatrix     = glm::mat4(1.0f); // matriz identidad
+            modelViewMatrix = scene.viewMatrix * modelMatrix;
+
+            // send ModelView to Vertex Shader
+            glUniformMatrix4fv(scene.uMVMatrixLocation, 1, GL_FALSE, &modelViewMatrix[0][0]);
+
+            // Matrix model calculation
+            modelMatrix     = glm::mat4(1.0f); // matriz identidad
+            modelMatrix     = glm::translate(modelMatrix,glm::vec3(tx, ty, tz));
+
+            modelViewMatrix = scene.viewMatrix * modelMatrix;
+
+            // draw road
+            glUniform4fv(scene.uColorLocation, 1, colors[0]);
+
+            // associate vertex and its normals
+            glVertexAttribPointer(scene.aPositionLocation, POSITION_COMPONENT_COUNT, GL_FLOAT, false, STRIDE, model0);
+            glVertexAttribPointer(scene.aNormalLocation, NORMAL_COMPONENT_COUNT, GL_FLOAT, false, STRIDE, model0+3);
+
+            glDrawArrays(GL_TRIANGLES, 0, num_vertex0);
+
+        }
+        break;
+    }
 
         //default:
-            //std::cout<<"There is no ID for this:"<<type<<std::endl;
+        //std::cout<<"There is no ID for this:"<<type<<std::endl;
     } // switch
 
 }
 
 //************************************************************** Clase TScene
 
-TScene::TScene() {
+TScene::TScene()
+{
 
     selection = 1;
     num_objects = 0;
@@ -420,7 +439,7 @@ void __fastcall TScene::InitGL()
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
 
-    // Inicializaci髇 de GLEW
+    // Inicializaci贸n de GLEW
     std::cout << "Inicializando GLEW" << std::endl << std::endl;
     if(glewInit() != GLEW_OK)
         throw std::runtime_error("glewInit failed");
@@ -474,7 +493,7 @@ void __fastcall TScene::InitGL()
     glEnableVertexAttribArray(aPositionLocation);
     glEnableVertexAttribArray(aNormalLocation);
 
-    // Estableciendo la matriz de proyecci髇 perspectiva
+    // Estableciendo la matriz de proyecci贸n perspectiva
     GLUI_Master.get_viewport_area( &tx, &ty, &tw, &th );
     xy_aspect = (float)tw / (float)th;
     projectionMatrix = glm::perspective(45.0f, xy_aspect, 0.1f, 1000.0f);
@@ -512,7 +531,8 @@ void __fastcall TScene::AddObject(TPrimitive *object)
     num_objects++;
 }
 
-void __fastcall TScene::LoadTexture(char* path, unsigned char id){
+void __fastcall TScene::LoadTexture(char* path, unsigned char id)
+{
     unsigned char* pixeles;
     int width, height;
 
@@ -546,7 +566,8 @@ TPrimitive __fastcall *TScene::GetCar(int id)
 
 /******************** TScene::RenderCars() **********************************/
 
-void __fastcall TScene::RenderCars(bool reflex) {
+void __fastcall TScene::RenderCars(bool reflex)
+{
 
     for (int i=0; i<num_cars; i++)
     {
@@ -556,7 +577,8 @@ void __fastcall TScene::RenderCars(bool reflex) {
 
 /******************** TScene::RenderCars() **********************************/
 
-void __fastcall TScene::RenderObjects(bool reflex) {
+void __fastcall TScene::RenderObjects(bool reflex)
+{
 
     for (int i=0; i<num_objects; i++)
     {
@@ -574,7 +596,7 @@ void __fastcall TScene::Render()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-    // C醠culo de la vista (c醡ara)
+    // C谩lculo de la vista (c谩mara)
     viewMatrix      = glm::mat4(1.0f);
     rotateMatrix    = glm::make_mat4(view_rotate);
     viewMatrix      = glm::translate(viewMatrix,glm::vec3(view_position[0], view_position[1], view_position[2]));
@@ -617,10 +639,11 @@ void controlCallback(int control)
     gui.ControlCallback(control);
 }
 
-void __fastcall TGui::Init(int main_window) {
+void __fastcall TGui::Init(int main_window)
+{
 
     /****************************************************/
-    /*        C骴igo con el interfaz Gr醘ico GLUI       */
+    /*        C贸digo con el interfaz Gr谩fico GLUI       */
     /****************************************************/
     printf( "GLUI version: %3.2f\n", GLUI_Master.get_version() );
 
@@ -629,10 +652,10 @@ void __fastcall TGui::Init(int main_window) {
     /*** Crea a ventana lateral ***/
     glui = GLUI_Master.create_glui_subwindow( window_id, GLUI_SUBWINDOW_RIGHT );
 
-    // A馻de una separaci髇
+    // A帽ade una separaci贸n
     new GLUI_StaticText( glui, "" );
 
-    // A馻de un panel con texto con el valor de la selecci髇
+    // A帽ade un panel con texto con el valor de la selecci贸n
     GLUI_Panel *panel0 = new GLUI_Panel(glui, "Selection");
     GLUI_RadioGroup *radioGroup = new GLUI_RadioGroup(panel0, &sel, SEL_ID, controlCallback);
     glui->add_radiobutton_to_group(radioGroup, "NONE");
@@ -654,9 +677,9 @@ void __fastcall TGui::Init(int main_window) {
     new GLUI_Checkbox( obj_panel, "Culling", &scene.culling, 1, controlCallback );
     new GLUI_Checkbox( obj_panel, "Z Buffer", &scene.z_buffer, 1, controlCallback );
 
-    /******** A馻de controles para las luces ********/
+    /******** A帽ade controles para las luces ********/
 
-    // A馻de una separaci髇
+    // A帽ade una separaci贸n
     new GLUI_StaticText( glui, "" );
 
     GLUI_Rollout *roll_lights = new GLUI_Rollout(glui, "Lights", false );
@@ -666,35 +689,35 @@ void __fastcall TGui::Init(int main_window) {
 
     new GLUI_Checkbox( light0, "Turned ON", &light0_enabled, LIGHT0_ENABLED_ID, controlCallback );
     light0_spinner = new GLUI_Spinner( light0, "Intensidad:", &light0_intensity,
-                            LIGHT0_INTENSITY_ID, controlCallback );
+                                       LIGHT0_INTENSITY_ID, controlCallback );
     light0_spinner->set_float_limits( 0.0, 1.0 );
     GLUI_Scrollbar *sb;
     sb = new GLUI_Scrollbar( light0, "X",GLUI_SCROLL_HORIZONTAL,
-                            &scene.light0_position[0],LIGHT0_POSITION_ID,controlCallback);
+                             &scene.light0_position[0],LIGHT0_POSITION_ID,controlCallback);
     sb->set_float_limits(-100,100);
     sb = new GLUI_Scrollbar( light0, "Y",GLUI_SCROLL_HORIZONTAL,
-                            &scene.light0_position[1],LIGHT0_POSITION_ID,controlCallback);
+                             &scene.light0_position[1],LIGHT0_POSITION_ID,controlCallback);
     sb->set_float_limits(-100,100);
     sb = new GLUI_Scrollbar( light0, "Z",GLUI_SCROLL_HORIZONTAL,
-                            &scene.light0_position[2],LIGHT0_POSITION_ID,controlCallback);
+                             &scene.light0_position[2],LIGHT0_POSITION_ID,controlCallback);
     sb->set_float_limits(-100,100);
 
     new GLUI_Checkbox( light1, "Turned ON", &light1_enabled, LIGHT1_ENABLED_ID, controlCallback );
     light1_spinner = new GLUI_Spinner( light1, "Intensity:", &light1_intensity,
-                            LIGHT1_INTENSITY_ID, controlCallback );
+                                       LIGHT1_INTENSITY_ID, controlCallback );
     light1_spinner->set_float_limits( 0.0, 1.0 );
     sb = new GLUI_Scrollbar( light1, "X",GLUI_SCROLL_HORIZONTAL,
-                            &scene.light1_position[0],LIGHT1_POSITION_ID,controlCallback);
+                             &scene.light1_position[0],LIGHT1_POSITION_ID,controlCallback);
     sb->set_float_limits(-100,100);
     sb = new GLUI_Scrollbar( light1, "Y",GLUI_SCROLL_HORIZONTAL,
-                            &scene.light1_position[1],LIGHT1_POSITION_ID,controlCallback);
+                             &scene.light1_position[1],LIGHT1_POSITION_ID,controlCallback);
     sb->set_float_limits(-100,100);
     sb = new GLUI_Scrollbar( light1, "Z",GLUI_SCROLL_HORIZONTAL,
-                            &scene.light1_position[2],LIGHT1_POSITION_ID,controlCallback);
+                             &scene.light1_position[2],LIGHT1_POSITION_ID,controlCallback);
     sb->set_float_limits(-100,100);
 
 
-    // A馻de una separaci髇
+    // A帽ade una separaci贸n
     new GLUI_StaticText( glui, "" );
 
     /***  Rollout de Opciones ***/
@@ -705,19 +728,19 @@ void __fastcall TGui::Init(int main_window) {
 
 
     /*** Disable/Enable botones ***/
-    // A馻de una separaci髇
+    // A帽ade una separaci贸n
     new GLUI_StaticText( glui, "" );
     new GLUI_Checkbox( glui, "Block movement", &enable_panel2 );
-    // A馻de una separaci髇
+    // A帽ade una separaci贸n
     new GLUI_StaticText( glui, "" );
     new GLUI_Button( glui, "Reset Position", RESET_ID, controlCallback );
 
-    // A馻de una separaci髇
+    // A帽ade una separaci贸n
     new GLUI_StaticText( glui, "" );
 
     new GLUI_Separator( glui );
 
-     // A馻de una separaci髇
+    // A帽ade una separaci贸n
     new GLUI_StaticText( glui, "" );
 
     new GLUI_StaticText( glui, "  Author:" );
@@ -762,85 +785,98 @@ void __fastcall TGui::Init(int main_window) {
 
 void __fastcall TGui::ControlCallback( int control )
 {
-    switch (control) {
-        case LIGHT0_ENABLED_ID: {
-            if ( light0_enabled )
-                light0_spinner->enable();
-            else
-                light0_spinner->disable();
-            break;
-        }
-        case LIGHT1_ENABLED_ID: {
-            if ( light1_enabled )
-                light1_spinner->enable();
-            else
-                light1_spinner->disable();
-            break;
-        }
-        case LIGHT0_INTENSITY_ID: {
+    switch (control)
+    {
+    case LIGHT0_ENABLED_ID:
+    {
+        if ( light0_enabled )
+            light0_spinner->enable();
+        else
+            light0_spinner->disable();
+        break;
+    }
+    case LIGHT1_ENABLED_ID:
+    {
+        if ( light1_enabled )
+            light1_spinner->enable();
+        else
+            light1_spinner->disable();
+        break;
+    }
+    case LIGHT0_INTENSITY_ID:
+    {
 
-            float v[] = {
-                scene.light0_diffuse[0],  scene.light0_diffuse[1],
-                scene.light0_diffuse[2],  scene.light0_diffuse[3] };
+        float v[] =
+        {
+            scene.light0_diffuse[0],  scene.light0_diffuse[1],
+            scene.light0_diffuse[2],  scene.light0_diffuse[3]
+        };
 
-            v[0] *= light0_intensity;
-            v[1] *= light0_intensity;
-            v[2] *= light0_intensity;
-            break;
-        }
-        case LIGHT1_INTENSITY_ID: {
+        v[0] *= light0_intensity;
+        v[1] *= light0_intensity;
+        v[2] *= light0_intensity;
+        break;
+    }
+    case LIGHT1_INTENSITY_ID:
+    {
 
-            float v[] = {
-                scene.light1_diffuse[0],  scene.light1_diffuse[1],
-                scene.light1_diffuse[2],  scene.light1_diffuse[3] };
+        float v[] =
+        {
+            scene.light1_diffuse[0],  scene.light1_diffuse[1],
+            scene.light1_diffuse[2],  scene.light1_diffuse[3]
+        };
 
-            v[0] *= light1_intensity;
-            v[1] *= light1_intensity;
-            v[2] *= light1_intensity;
-            break;
-        }
-        case ENABLE_ID: {
-            glui2->enable();
-            break;
-        }
-        case DISABLE_ID: {
-            glui2->disable();
-            break;
-        }
-        case RESET_ID: {
-            memcpy(scene.view_position,view_position_c,3*sizeof(float));
-            view_rot->reset();
-            scene.scale = 1.0;
-            break;
-        }
-        case SEL_ID: {
-            scene.selection = sel;
-            //GLUI_Master.SetFocus(true);
-            glutSetWindow( glui->get_glut_window_id() );
-            break;
-        }
-  } // switch
+        v[0] *= light1_intensity;
+        v[1] *= light1_intensity;
+        v[2] *= light1_intensity;
+        break;
+    }
+    case ENABLE_ID:
+    {
+        glui2->enable();
+        break;
+    }
+    case DISABLE_ID:
+    {
+        glui2->disable();
+        break;
+    }
+    case RESET_ID:
+    {
+        memcpy(scene.view_position,view_position_c,3*sizeof(float));
+        view_rot->reset();
+        scene.scale = 1.0;
+        break;
+    }
+    case SEL_ID:
+    {
+        scene.selection = sel;
+        //GLUI_Master.SetFocus(true);
+        glutSetWindow( glui->get_glut_window_id() );
+        break;
+    }
+    } // switch
 }
 
 /***************************************** TGui::Idle() ***********/
 
 void __fastcall TGui::Idle( void )
 {
-  /* According to the GLUT specification, the current window is
-     undefined during an idle callback.  So we need to explicitly change
-     it if necessary */
-  if ( glutGetWindow() != window_id )
-    glutSetWindow(window_id);
+    /* According to the GLUT specification, the current window is
+       undefined during an idle callback.  So we need to explicitly change
+       it if necessary */
+    if ( glutGetWindow() != window_id )
+        glutSetWindow(window_id);
 
-  /*  GLUI_Master.sync_live_all();  -- not needed - nothing to sync in this
-                                       application  */
+    /*  GLUI_Master.sync_live_all();  -- not needed - nothing to sync in this
+                                         application  */
     if (enable_panel2)
 
         glui2->enable();
     else
         glui2->disable();
 
-  glutPostRedisplay();
+    glutPostRedisplay();
 }
 
 /**************************************** TGui::reshape() *************/
