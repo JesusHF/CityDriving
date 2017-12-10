@@ -49,8 +49,8 @@ GLfloat mat_specular_c[4]   = { 1.0f, 1.0f, 1.0f, 1.0f };
 GLfloat mat_shininess_c[1] = { 100.0f };
 
 // 4x4 Matrix = (I)
-float view_rotate_c[16] = { 1,0,0,0, 0,1,0,0, 0,0,-1,0, 0,0,0,1 };
-float view_position_c[3] = { 0.0, -2.0, -35 };
+float view_rotate_c[16] = { 1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1 };
+float view_position_c[3] = { -0.8, -0.5, -16};
 
 float colorsc_c[2][4] = { {0.8, 0.5, 0.0, 1.0}, {0.5, 0.5, 0.5, 1.0}}; // Car color
 float colorsr_c[2][4] = { {0.3, 0.3, 0.3, 1.0}, {1.0, 1.0, 1.0, 1.0}}; // Road color
@@ -391,7 +391,6 @@ void __fastcall TPrimitive::Render(int selection, bool reflex)
 
 TScene::TScene()
 {
-
     selection = 1;
     num_objects = 0;
     num_cars = 0;
@@ -399,6 +398,9 @@ TScene::TScene()
     show_car = 1;
     show_wheels = 1;
     show_road = 1;
+
+    actual_camera = 0;
+    actual_view = glm::lookAt(glm::vec3( 0.0, 1, -50 ), glm::vec3(0,2,0), glm::vec3(0,1,0));
 
     // live variables used by GLUI in TGui
     wireframe = 0;
@@ -596,12 +598,64 @@ void __fastcall TScene::Render()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-    // Cálculo de la vista (cámara)
-    viewMatrix      = glm::mat4(1.0f);
-    rotateMatrix    = glm::make_mat4(view_rotate);
-    viewMatrix      = glm::translate(viewMatrix,glm::vec3(view_position[0], view_position[1], view_position[2]));
-    viewMatrix      = viewMatrix*rotateMatrix;
-    viewMatrix      = glm::scale(viewMatrix,glm::vec3(scale, scale, scale));
+    // Free camera
+    if(scene.actual_camera == 0)
+    {
+        gui.enable_panel2 = 1;
+
+        viewMatrix      = actual_view;
+        rotateMatrix    = glm::make_mat4(view_rotate);
+        viewMatrix      = glm::translate(viewMatrix,glm::vec3(view_position[0], view_position[1], view_position[2]));
+        viewMatrix      = viewMatrix*rotateMatrix;
+        viewMatrix      = glm::scale(viewMatrix,glm::vec3(scale, scale, scale));
+    }
+
+    // Chasing car camera
+    else if (scene.actual_camera == 1)
+    {
+        // block movement
+        gui.enable_panel2 = 0;
+
+        TPrimitive* car = GetCar(selection);
+
+        if(car!=0)
+        {
+            glm::vec3 carPosition = glm::vec3(car->tx, car->ty, car->tz);
+
+            float distance = -3.0;
+            float height = 1.5;
+            uint16_t angle = car->dirAngle.getAlpha();
+            float camX = car->tx + (distance * sin((PI/180)*angle));
+            float camY = car->ty + height;
+            float camZ = car->tz + (distance * cos((PI/180)*angle));
+            glm::vec3 cameraPosition = glm::vec3(camX, camY, camZ);
+
+            viewMatrix      = glm::lookAt(cameraPosition, carPosition, glm::vec3(0,1,0));
+            rotateMatrix    = glm::make_mat4(view_rotate);
+            viewMatrix      *= rotateMatrix;
+
+        }
+        else
+        {
+            scene.actual_camera = 0;
+            gui.cam_sel = 0;
+        }
+    }
+
+    // Top view camera
+    else if (scene.actual_camera == 2)
+    {
+        // block movement
+        gui.enable_panel2 = 0;
+
+        TPrimitive *car = GetCar(selection);
+
+        glm::vec3 carPosition = glm::vec3(car->tx, car->ty, car->tz);
+        glm::vec3 cameraPosition = glm::vec3(car->tx, car->ty + 15, car->tz-1);
+        glm::vec3 up = glm::vec3(0,1,0);
+
+        viewMatrix = glm::lookAt(cameraPosition, carPosition, up);
+    }
 
     glUniform1i(uLuz0Location, gui.light0_enabled);
     glUniformMatrix4fv(uVMatrixLocation, 1, GL_FALSE, glm::value_ptr(viewMatrix)); // Para la luz matrix view pero sin escalado!
@@ -625,6 +679,7 @@ void __fastcall TScene::Pick3D(int mouse_x, int mouse_y)
 TGui::TGui()
 {
     sel = 1;
+    cam_sel = 0;
     enable_panel2 = 1;
     light0_enabled = 1;
     light1_enabled = 1;
@@ -659,11 +714,8 @@ void __fastcall TGui::Init(int main_window)
     GLUI_Panel *panel0 = new GLUI_Panel(glui, "Selection");
     GLUI_RadioGroup *radioGroup = new GLUI_RadioGroup(panel0, &sel, SEL_ID, controlCallback);
     glui->add_radiobutton_to_group(radioGroup, "NONE");
-
-
     glui->add_radiobutton_to_group(radioGroup, "CAR 1");
     glui->add_radiobutton_to_group(radioGroup, "CAR 2");
-
 
     // Adds a separation
     new GLUI_StaticText( glui, "" );
@@ -720,6 +772,17 @@ void __fastcall TGui::Init(int main_window)
     // Añade una separación
     new GLUI_StaticText( glui, "" );
 
+    GLUI_Rollout *roll_cameras = new GLUI_Rollout(glui, "Cameras", true );
+
+    GLUI_RadioGroup *camRadioGroup = new GLUI_RadioGroup(roll_cameras, &cam_sel, SEL_CAM_ID, controlCallback);
+    glui->add_radiobutton_to_group(camRadioGroup, "Free Camera");
+    glui->add_radiobutton_to_group(camRadioGroup, "Chase Camera");
+    glui->add_radiobutton_to_group(camRadioGroup, "Top view Camera");
+
+
+    // Añade una separación
+    new GLUI_StaticText( glui, "" );
+
     /***  Rollout de Opciones ***/
     GLUI_Rollout *options = new GLUI_Rollout(glui, "Options", true );
     new GLUI_Checkbox( options, "Draw Car", &scene.show_car );
@@ -730,7 +793,7 @@ void __fastcall TGui::Init(int main_window)
     /*** Disable/Enable botones ***/
     // Añade una separación
     new GLUI_StaticText( glui, "" );
-    new GLUI_Checkbox( glui, "Block movement", &enable_panel2 );
+    new GLUI_Checkbox( glui, "Enable movement", &enable_panel2 );
     // Añade una separación
     new GLUI_StaticText( glui, "" );
     new GLUI_Button( glui, "Reset Position", RESET_ID, controlCallback );
@@ -851,6 +914,13 @@ void __fastcall TGui::ControlCallback( int control )
     case SEL_ID:
     {
         scene.selection = sel;
+        //GLUI_Master.SetFocus(true);
+        glutSetWindow( glui->get_glut_window_id() );
+        break;
+    }
+    case SEL_CAM_ID:
+    {
+        scene.actual_camera = cam_sel;
         //GLUI_Master.SetFocus(true);
         glutSetWindow( glui->get_glut_window_id() );
         break;

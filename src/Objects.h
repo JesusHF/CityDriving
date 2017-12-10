@@ -56,6 +56,7 @@
 #define RESET_ID             400
 
 #define SEL_ID               500
+#define SEL_CAM_ID           501
 
 // 3DS format data (x, y, z, A, B, C, u, v)
 #define POSITION_COMPONENT_COUNT    3
@@ -257,6 +258,9 @@ public: // Class attributes
     int     show_wheels;
     int     show_road;
 
+    int     actual_camera;
+    glm::mat4 actual_view;
+
     //camera variables
     GLfloat view_position[3];
     GLfloat view_rotate[16];
@@ -290,6 +294,7 @@ public:
 
     // live variables used by GLUI
     int             sel;
+    int             cam_sel;
     int             enable_panel2;
     int             light0_enabled;
     int             light1_enabled;
