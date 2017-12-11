@@ -9,6 +9,8 @@ uniform vec4 u_Color;		        // in: Color del objeto
 uniform int  u_Luz0;                // in: Indica si la luz 0 está encedida
 
 varying vec4 v_Color;		        // out: Color al fragment shader
+varying   vec2 v_uv;
+attribute vec2 a_UV; // in: Coordenadas UV de mapeado de textura
 
 void main()
 {
@@ -28,6 +30,7 @@ void main()
         float attenuation = 80.0/(0.25+(0.01*d)+(0.003*d*d));
         diffuse = diffuse*attenuation;
 	}
-	v_Color = u_Color * (ambient + diffuse);
+	v_uv = a_UV;
+	v_Color =  (ambient + diffuse);
 	gl_Position = u_ProjectionMatrix * vec4(P, 1.0);
 }

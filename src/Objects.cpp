@@ -30,7 +30,20 @@
 #define chasis_y_offset    0.32
 #define wheel_x_offset     -0.35
 
-#pragma GCC diagnostic ignored "-Wwrite-strings"
+//textures
+#define CAR_TEXTURE 0
+#define WHEEL_TEXTURE 1
+#define TUNNEL_TEXTURE 2
+#define TREE_TEXTURE 3
+#define ROAD_TEXTURE 4
+#define FLOOR_TEXTURE 5
+#define BOLLARD_TEXTURE 6
+#define SIGN1_TEXTURE 7
+#define SIGN2_TEXTURE 8
+#define MOUNTAIN_TEXTURE 9
+#define RIVER_TEXTURE 10
+
+//#pragma GCC diagnostic ignored "-Wwrite-strings"
 
 // Variable for initializing vectors with initials values
 GLfloat light0_ambient_c[4]  = {   0.2f,   0.2f,  0.2f, 1.0f };
@@ -219,6 +232,11 @@ void __fastcall TPrimitive::Render(int selection, bool reflex)
 {
     glm::mat4   modelMatrix;
     glm::mat4   modelViewMatrix;
+
+    // select texture
+    glActiveTexture(GL_TEXTURE0);
+    glUniform1f(scene.uTextureUnitLocation, 0);
+
     switch (type)
     {
 
@@ -241,7 +259,9 @@ void __fastcall TPrimitive::Render(int selection, bool reflex)
             // associate vertex and its normals
             glVertexAttribPointer(scene.aPositionLocation, POSITION_COMPONENT_COUNT, GL_FLOAT, false, STRIDE, model0);
             glVertexAttribPointer(scene.aNormalLocation, NORMAL_COMPONENT_COUNT, GL_FLOAT, false, STRIDE, model0+3);
+            glVertexAttribPointer(scene.aUVLocation, UV_COMPONENT_COUNT, GL_FLOAT, false, STRIDE, model0+6);
 
+            glBindTexture(GL_TEXTURE_2D, scene.textures[ROAD_TEXTURE]);
             glDrawArrays(GL_TRIANGLES, 0, num_vertex0);
 
         }
@@ -249,7 +269,6 @@ void __fastcall TPrimitive::Render(int selection, bool reflex)
     }
     case CAR_ID:
     {
-
         if (scene.show_car)
         {
             glUniform4fv(scene.uColorLocation, 1, (const GLfloat *) colors[0]);
@@ -257,6 +276,7 @@ void __fastcall TPrimitive::Render(int selection, bool reflex)
             // associate vertex and its normals
             glVertexAttribPointer(scene.aPositionLocation, POSITION_COMPONENT_COUNT, GL_FLOAT, false, STRIDE, model0);
             glVertexAttribPointer(scene.aNormalLocation, NORMAL_COMPONENT_COUNT, GL_FLOAT, false, STRIDE, model0+3);
+            glVertexAttribPointer(scene.aUVLocation, UV_COMPONENT_COUNT, GL_FLOAT, false, STRIDE, model0+6);
 
             // Matrix model calculation
             modelMatrix     = glm::mat4(1.0f); // identity matrix
@@ -268,9 +288,9 @@ void __fastcall TPrimitive::Render(int selection, bool reflex)
             // send ModelView to Vertex Shader
             glUniformMatrix4fv(scene.uMVMatrixLocation, 1, GL_FALSE, &modelViewMatrix[0][0]);
 
+            glBindTexture(GL_TEXTURE_2D, scene.textures[CAR_TEXTURE]);
             glDrawArrays(GL_TRIANGLES, 0, num_vertex0);
         }
-
 
         if (scene.show_wheels)
         {
@@ -279,6 +299,7 @@ void __fastcall TPrimitive::Render(int selection, bool reflex)
             // associate vertex and its normals
             glVertexAttribPointer(scene.aPositionLocation, POSITION_COMPONENT_COUNT, GL_FLOAT, false, STRIDE, model1);
             glVertexAttribPointer(scene.aNormalLocation, NORMAL_COMPONENT_COUNT, GL_FLOAT, false, STRIDE, model1+3);
+            glVertexAttribPointer(scene.aUVLocation, UV_COMPONENT_COUNT, GL_FLOAT, false, STRIDE, model0+6);
 
             // TOP RIGHT WHEEL : Matrix model calculation
             modelMatrix     = glm::mat4(1.0f); // identity matrix
@@ -294,6 +315,7 @@ void __fastcall TPrimitive::Render(int selection, bool reflex)
 
             // send ModelView to Vertex Shader
             glUniformMatrix4fv(scene.uMVMatrixLocation, 1, GL_FALSE, &modelViewMatrix[0][0]);
+            glBindTexture(GL_TEXTURE_2D, scene.textures[WHEEL_TEXTURE]);
 
             glDrawArrays(GL_TRIANGLES, 0, num_vertex1);
 
@@ -341,16 +363,15 @@ void __fastcall TPrimitive::Render(int selection, bool reflex)
             break;
         }
     }
-
     case PLATFORM_ID:
-    case FLOOR_ID:
-    case FLOOR2_ID:
-    case RIVER_ID:
-    case MOUNTAINS_ID:
     case TREES_ID:
     case TUNNEL_ID:
+    case FLOOR_ID:
+    case FLOOR2_ID:
+    case MOUNTAINS_ID:
     case SIGNAL1_ID:
     case SIGNAL2_ID:
+    case RIVER_ID:
     {
         if (scene.show_road)
         {
@@ -374,13 +395,46 @@ void __fastcall TPrimitive::Render(int selection, bool reflex)
             // associate vertex and its normals
             glVertexAttribPointer(scene.aPositionLocation, POSITION_COMPONENT_COUNT, GL_FLOAT, false, STRIDE, model0);
             glVertexAttribPointer(scene.aNormalLocation, NORMAL_COMPONENT_COUNT, GL_FLOAT, false, STRIDE, model0+3);
+            glVertexAttribPointer(scene.aUVLocation, UV_COMPONENT_COUNT, GL_FLOAT, false, STRIDE, model0+6);
 
+            // wheel texture by default
+            int id_texture = 1;
+            switch(type){
+                case PLATFORM_ID:
+                    id_texture = FLOOR_TEXTURE;
+                    break;
+                case MOUNTAINS_ID:
+                    id_texture = MOUNTAIN_TEXTURE;
+                    break;
+                case TREES_ID:
+                    id_texture = TREE_TEXTURE;
+                    break;
+                case TUNNEL_ID:
+                    id_texture = TUNNEL_TEXTURE;
+                    break;
+                case FLOOR_ID:
+                    id_texture = FLOOR_TEXTURE;
+                    break;
+                case FLOOR2_ID:
+                    id_texture = FLOOR_TEXTURE;
+                    break;
+                case RIVER_ID:
+                    id_texture = RIVER_TEXTURE;
+                    break;
+                case SIGNAL1_ID:
+                    id_texture = SIGN1_TEXTURE;
+                    break;
+                case SIGNAL2_ID:
+                    id_texture = SIGN2_TEXTURE;
+                    break;
+            }
+
+            glBindTexture(GL_TEXTURE_2D, scene.textures[id_texture]);
             glDrawArrays(GL_TRIANGLES, 0, num_vertex0);
 
         }
         break;
     }
-
         //default:
         //std::cout<<"There is no ID for this:"<<type<<std::endl;
     } // switch
@@ -472,11 +526,18 @@ void __fastcall TScene::InitGL()
     aPositionLocation=shaderProgram->attrib(A_POSITION);
     aNormalLocation=shaderProgram->attrib(A_NORMAL);
 
+    // link scene variable to shader A_UV Attribute
+    aUVLocation=shaderProgram->attrib(A_UV);
+
     uProjectionMatrixLocation=shaderProgram->uniform(U_PROJECTIONMATRIX);
     uMVMatrixLocation=shaderProgram->uniform(U_MVMATRIX);
     uVMatrixLocation=shaderProgram->uniform(U_VMATRIX);
-    uColorLocation=shaderProgram->uniform(U_COLOR);
-    //uTextureUnitLocation=shaderProgram->uniform(U_TEXTUREUNITLOCATION);
+
+    // REMOVED U_COLOR FROM VERTEX SHADER
+    //uColorLocation=shaderProgram->uniform(U_COLOR);
+
+    // initialize scene uniform from shader value
+    uTextureUnitLocation=shaderProgram->uniform(U_TEXTUREUNITLOCATION);
 
     uLuz0Location=shaderProgram->uniform(U_LUZ0);
 
@@ -491,28 +552,30 @@ void __fastcall TScene::InitGL()
     std::cout << "u_Luz0 Location: " << uLuz0Location << std::endl;
     */
 
-    // Habilitamos el paso de attributes
+    // Enable attributes pass
     glEnableVertexAttribArray(aPositionLocation);
     glEnableVertexAttribArray(aNormalLocation);
+    glEnableVertexAttribArray(aUVLocation);
 
-    // Estableciendo la matriz de proyección perspectiva
+    // Establishing projective perspective matrix
     GLUI_Master.get_viewport_area( &tx, &ty, &tw, &th );
     xy_aspect = (float)tw / (float)th;
     projectionMatrix = glm::perspective(45.0f, xy_aspect, 0.1f, 1000.0f);
     glUniformMatrix4fv(uProjectionMatrixLocation, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
 
-
     //Loading textures
-    glGenTextures(10, textures);
-    LoadTexture("../../models/textures/textura_coche.jpg", 0);
-    LoadTexture("../../models/textures/textura_rueda.jpg", 1);
-    LoadTexture("../../models/textures/textura_tunel.jpg", 2);
-    LoadTexture("../../models/textures/textura_arbol.jpg", 3);
-    LoadTexture("../../models/textures/textura_carretera.jpg", 4);
-    LoadTexture("../../models/textures/textura_suelo.jpg", 5);
-    LoadTexture("../../models/textures/textura_tunel.jpg", 6);
-    LoadTexture("../../models/textures/textura_peligro_salchicha.jpg", 7);
-    LoadTexture("../../models/textures/textura_senal_not.jpg", 8);
+    glGenTextures(11, textures);
+    LoadTexture("../../models/textures/textura_coche.jpg", CAR_TEXTURE);
+    LoadTexture("../../models/textures/textura_rueda.jpg", WHEEL_TEXTURE);
+    LoadTexture("../../models/textures/textura_tunel.jpg", TUNNEL_TEXTURE);
+    LoadTexture("../../models/textures/textura_arbol.jpg", TREE_TEXTURE);
+    LoadTexture("../../models/textures/textura_carretera.jpg", ROAD_TEXTURE);
+    LoadTexture("../../models/textures/textura_suelo.jpg", FLOOR_TEXTURE);
+    LoadTexture("../../models/textures/textura_bolardo.jpg", BOLLARD_TEXTURE);
+    LoadTexture("../../models/textures/textura_peligro_salchicha.jpg", SIGN1_TEXTURE);
+    LoadTexture("../../models/textures/textura_senal_not.jpg", SIGN2_TEXTURE);
+    LoadTexture("../../models/textures/textura_montania.jpg", MOUNTAIN_TEXTURE);
+    LoadTexture("../../models/textures/textura_rio.jpg", RIVER_TEXTURE);
 
 }
 
@@ -533,20 +596,21 @@ void __fastcall TScene::AddObject(TPrimitive *object)
     num_objects++;
 }
 
-void __fastcall TScene::LoadTexture(char* path, unsigned char id)
+void __fastcall TScene::LoadTexture(const char* path, unsigned char id)
 {
-    unsigned char* pixeles;
+    unsigned char* pixels;
     int width, height;
 
-    pixeles = LoadJPEG(path, &width, &height);
+    // get pixels from uv map
+    pixels = LoadJPEG(path, &width, &height);
     glActiveTexture(GL_TEXTURE0 + textures[id]);
     glBindTexture(GL_TEXTURE_2D, textures[id]);
-    glTexImage2D(GL_TEXTURE_2D, 0, 3, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, pixeles);
+    glTexImage2D(GL_TEXTURE_2D, 0, 3, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    free(pixeles);
+    free(pixels);
 }
 
 /******************** TPrimitive *TScene::GetCar(int id) ********************/
@@ -622,14 +686,15 @@ void __fastcall TScene::Render()
         {
             glm::vec3 carPosition = glm::vec3(car->tx, car->ty, car->tz);
 
-            float distance = -3.0;
-            float height = 1.5;
-            uint16_t angle = car->dirAngle.getAlpha();
+            float distance = -3.0;                                      // z and x distance from car
+            float height = 1.5;                                         // y distance from car
+            uint16_t angle = car->dirAngle.getAlpha();                  // angle of rotation of car
             float camX = car->tx + (distance * sin((PI/180)*angle));
             float camY = car->ty + height;
             float camZ = car->tz + (distance * cos((PI/180)*angle));
-            glm::vec3 cameraPosition = glm::vec3(camX, camY, camZ);
+            glm::vec3 cameraPosition = glm::vec3(camX, camY, camZ);     //new position vector of camera
 
+            // get look at matrix
             viewMatrix      = glm::lookAt(cameraPosition, carPosition, glm::vec3(0,1,0));
             rotateMatrix    = glm::make_mat4(view_rotate);
             viewMatrix      *= rotateMatrix;
@@ -654,6 +719,7 @@ void __fastcall TScene::Render()
         glm::vec3 cameraPosition = glm::vec3(car->tx, car->ty + 15, car->tz-1);
         glm::vec3 up = glm::vec3(0,1,0);
 
+        // get look at matrix
         viewMatrix = glm::lookAt(cameraPosition, carPosition, up);
     }
 

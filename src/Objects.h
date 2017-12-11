@@ -68,6 +68,7 @@
 // attributes name
 #define A_POSITION  "a_Position"
 #define A_NORMAL    "a_Normal"
+#define A_UV         "a_UV"
 
 // uniforms name
 #define U_PROJECTIONMATRIX      "u_ProjectionMatrix"
@@ -212,11 +213,12 @@ public: // Class attributes
     TPrimitive  *objects[100];
 
     //10 textures to load
-    GLuint textures[10];
+    GLuint textures[11];
 
     // Attributes & uniforms Handles
     int aPositionLocation;
     int aNormalLocation;
+    int aUVLocation;
     int uProjectionMatrixLocation;
     int uMVMatrixLocation;
     int uVMatrixLocation;
@@ -276,7 +278,7 @@ public: // Methods
 
     void __fastcall AddCar(TPrimitive *car);
     void __fastcall AddObject(TPrimitive *object);
-    void __fastcall LoadTexture(char * path, unsigned char id);
+    void __fastcall LoadTexture(const char * path, unsigned char id);
 
     TPrimitive __fastcall *GetCar(int id);
 
