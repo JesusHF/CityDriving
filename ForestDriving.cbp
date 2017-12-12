@@ -39,7 +39,9 @@
 			<Add library="C:/Program Files (x86)/CodeBlocks/MinGW/lib/libopengl32.a" />
 		</Linker>
 		<Unit filename="Shaders/FragmentShader.glsl" />
+		<Unit filename="Shaders/FragmentShaderGrey.glsl" />
 		<Unit filename="Shaders/VertexShader.glsl" />
+		<Unit filename="Shaders/VertexShaderGrey.glsl" />
 		<Unit filename="src/Objects.cpp" />
 		<Unit filename="src/Objects.h" />
 		<Unit filename="src/Program.cpp" />

@@ -491,23 +491,23 @@ void __fastcall TScene::InitGL()
 {
     int tx, ty, tw, th;
 
-    // Habilita el z_buffer
+    // Enables z_buffer
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
 
-    // Inicialización de GLEW
-    std::cout << "Inicializando GLEW" << std::endl << std::endl;
+    // Initialization GLEW
+    std::cout << "Initializing GLEW" << std::endl << std::endl;
     if(glewInit() != GLEW_OK)
         throw std::runtime_error("glewInit failed");
 
     // print out some info about the graphics drivers
     std::cout << "OpenGL version: " << glGetString(GL_VERSION) << std::endl;
     std::cout << "GLSL version: " << glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
-    std::cout << "Vendedor: " << glGetString(GL_VENDOR) << std::endl;
+    std::cout << "Vendor: " << glGetString(GL_VENDOR) << std::endl;
     std::cout << "Renderer: " << glGetString(GL_RENDERER) << std::endl;
 
-    // Carga de los Shaders
-    std::cout << std::endl << "Cargando Shaders" << std::endl;
+    // Shaders Loading
+    std::cout << std::endl << "Loading Shaders" << std::endl;
 
     Shader shader;
 
@@ -565,17 +565,17 @@ void __fastcall TScene::InitGL()
 
     //Loading textures
     glGenTextures(11, textures);
-    LoadTexture("../../models/textures/textura_coche.jpg", CAR_TEXTURE);
-    LoadTexture("../../models/textures/textura_rueda.jpg", WHEEL_TEXTURE);
-    LoadTexture("../../models/textures/textura_tunel.jpg", TUNNEL_TEXTURE);
-    LoadTexture("../../models/textures/textura_arbol.jpg", TREE_TEXTURE);
-    LoadTexture("../../models/textures/textura_carretera.jpg", ROAD_TEXTURE);
-    LoadTexture("../../models/textures/textura_suelo.jpg", FLOOR_TEXTURE);
-    LoadTexture("../../models/textures/textura_bolardo.jpg", BOLLARD_TEXTURE);
-    LoadTexture("../../models/textures/textura_peligro_salchicha.jpg", SIGN1_TEXTURE);
-    LoadTexture("../../models/textures/textura_senal_not.jpg", SIGN2_TEXTURE);
-    LoadTexture("../../models/textures/textura_montania.jpg", MOUNTAIN_TEXTURE);
-    LoadTexture("../../models/textures/textura_rio.jpg", RIVER_TEXTURE);
+    LoadTexture("../../models/textures/car_texture.jpg", CAR_TEXTURE);
+    LoadTexture("../../models/textures/wheel_texture.jpg", WHEEL_TEXTURE);
+    LoadTexture("../../models/textures/tunnel_texture.jpg", TUNNEL_TEXTURE);
+    LoadTexture("../../models/textures/tree_texture.jpg", TREE_TEXTURE);
+    LoadTexture("../../models/textures/road_texure.jpg", ROAD_TEXTURE);
+    LoadTexture("../../models/textures/floor_texture.jpg", FLOOR_TEXTURE);
+    LoadTexture("../../models/textures/bollard_texture.jpg", BOLLARD_TEXTURE);
+    LoadTexture("../../models/textures/sign_warn_texture.jpg", SIGN1_TEXTURE);
+    LoadTexture("../../models/textures/sign_not_texture.jpg", SIGN2_TEXTURE);
+    LoadTexture("../../models/textures/mountain_texture.jpg", MOUNTAIN_TEXTURE);
+    LoadTexture("../../models/textures/river_texture.jpg", RIVER_TEXTURE);
 
 }
 
