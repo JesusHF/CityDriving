@@ -31,6 +31,6 @@ void main()
         diffuse = diffuse*attenuation;
 	}
 	v_uv = a_UV;
-	v_Color =  (ambient + diffuse);
+	v_Color =  vec4(ambient + diffuse, ambient + diffuse, ambient + diffuse, ambient + diffuse);
 	gl_Position = u_ProjectionMatrix * vec4(P, 1.0);
 }
