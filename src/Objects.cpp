@@ -56,6 +56,11 @@ GLfloat light1_diffuse_c[4]  = {   0.8f,   0.8f,  0.8f, 1.0f };
 GLfloat light1_specular_c[4] = {   1.0f,   1.0f,  1.0f, 1.0f };
 GLfloat light1_position_c[4] = {   0.0f, 100.0f,  0.0f, 1.0f };
 
+GLfloat light2_ambient_c[4]  = {   0.2f,   0.2f,  0.2f, 1.0f };
+GLfloat light2_diffuse_c[4]  = {   0.8f,   0.8f,  0.8f, 1.0f };
+GLfloat light2_specular_c[4] = {   1.0f,   1.0f,  1.0f, 1.0f };
+GLfloat light2_position_c[4] = {   0.0f, 100.0f,  0.0f, 1.0f };
+
 GLfloat mat_ambient_c[4]    = { 0.7f, 0.7f, 0.7f, 1.0f };
 GLfloat mat_diffuse_c[4]    = { 0.8f, 0.8f, 0.8f, 1.0f };
 GLfloat mat_specular_c[4]   = { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -600,6 +605,11 @@ TScene::TScene()
     memcpy(light1_specular, light1_specular_c, 4*sizeof(float));
     memcpy(light1_position, light1_position_c, 4*sizeof(float));
 
+    memcpy(light2_ambient, light2_ambient_c, 4*sizeof(float));
+    memcpy(light2_diffuse, light2_diffuse_c, 4*sizeof(float));
+    memcpy(light2_specular, light2_specular_c, 4*sizeof(float));
+    memcpy(light2_position, light2_position_c, 4*sizeof(float));
+
     memcpy(mat_ambient, mat_ambient_c, 4*sizeof(float));
     memcpy(mat_diffuse, mat_diffuse_c, 4*sizeof(float));
     memcpy(mat_specular, mat_specular_c, 4*sizeof(float));
@@ -1020,10 +1030,13 @@ TGui::TGui()
     enable_panel2 = 1;
     light0_enabled = 1;
     light1_enabled = 1;
+    light2_enabled = 1;
     light0_intensity = 0.8;
     light1_intensity = 0.8;
+    light2_intensity = 0.8;
     memcpy(light0_position, light0_position_c, 4*sizeof(float));
     memcpy(light1_position, light1_position_c, 4*sizeof(float));
+    memcpy(light2_position, light2_position_c, 4*sizeof(float));
 }
 
 void controlCallback(int control)
@@ -1071,10 +1084,12 @@ void __fastcall TGui::Init(int main_window)
     // Añade una separación
     new GLUI_StaticText( glui, "" );
 
+    // LIGHTS ROLLOUT
     GLUI_Rollout *roll_lights = new GLUI_Rollout(glui, "Lights", false );
 
     GLUI_Panel *light0 = new GLUI_Panel( roll_lights, "Light 1" );
     GLUI_Panel *light1 = new GLUI_Panel( roll_lights, "Light 2" );
+    GLUI_Panel *light2 = new GLUI_Panel( roll_lights, "Light 3" );
 
     new GLUI_Checkbox( light0, "Turned ON", &light0_enabled, LIGHT0_ENABLED_ID, controlCallback );
     light0_spinner = new GLUI_Spinner( light0, "Intensidad:", &light0_intensity,
@@ -1104,6 +1119,21 @@ void __fastcall TGui::Init(int main_window)
     sb = new GLUI_Scrollbar( light1, "Z",GLUI_SCROLL_HORIZONTAL,
                              &scene.light1_position[2],LIGHT1_POSITION_ID,controlCallback);
     sb->set_float_limits(-100,100);
+
+    new GLUI_Checkbox( light2, "Turned ON", &light2_enabled, LIGHT2_ENABLED_ID, controlCallback );
+    light1_spinner = new GLUI_Spinner( light2, "Intensity:", &light2_intensity,
+                                       LIGHT2_INTENSITY_ID, controlCallback );
+    light1_spinner->set_float_limits( 0.0, 1.0 );
+    sb = new GLUI_Scrollbar( light2, "X",GLUI_SCROLL_HORIZONTAL,
+                             &scene.light2_position[0],LIGHT2_POSITION_ID,controlCallback);
+    sb->set_float_limits(-100,100);
+    sb = new GLUI_Scrollbar( light2, "Y",GLUI_SCROLL_HORIZONTAL,
+                             &scene.light2_position[1],LIGHT2_POSITION_ID,controlCallback);
+    sb->set_float_limits(-100,100);
+    sb = new GLUI_Scrollbar( light2, "Z",GLUI_SCROLL_HORIZONTAL,
+                             &scene.light2_position[2],LIGHT2_POSITION_ID,controlCallback);
+    sb->set_float_limits(-100,100);
+
 
 
     // Añade una separación
