@@ -271,12 +271,14 @@ void __fastcall TPrimitive::Render(int selection, bool reflex)
     {
         if (scene.show_car)
         {
+            // set color of car
             glUniform4fv(scene.uColorLocation, 1, (const GLfloat *) colors[0]);
 
             // associate vertex and its normals
             glVertexAttribPointer(scene.aPositionLocation, POSITION_COMPONENT_COUNT, GL_FLOAT, false, STRIDE, model0);
             glVertexAttribPointer(scene.aNormalLocation, NORMAL_COMPONENT_COUNT, GL_FLOAT, false, STRIDE, model0+3);
             glVertexAttribPointer(scene.aUVLocation, UV_COMPONENT_COUNT, GL_FLOAT, false, STRIDE, model0+6);
+            glBindTexture(GL_TEXTURE_2D, scene.textures[CAR_TEXTURE]);
 
             // Matrix model calculation
             modelMatrix     = glm::mat4(1.0f); // identity matrix
@@ -288,7 +290,6 @@ void __fastcall TPrimitive::Render(int selection, bool reflex)
             // send ModelView to Vertex Shader
             glUniformMatrix4fv(scene.uMVMatrixLocation, 1, GL_FALSE, &modelViewMatrix[0][0]);
 
-            glBindTexture(GL_TEXTURE_2D, scene.textures[CAR_TEXTURE]);
             glDrawArrays(GL_TRIANGLES, 0, num_vertex0);
         }
 
@@ -399,34 +400,35 @@ void __fastcall TPrimitive::Render(int selection, bool reflex)
 
             // wheel texture by default
             int id_texture = 1;
-            switch(type){
-                case PLATFORM_ID:
-                    id_texture = FLOOR_TEXTURE;
-                    break;
-                case MOUNTAINS_ID:
-                    id_texture = MOUNTAIN_TEXTURE;
-                    break;
-                case TREES_ID:
-                    id_texture = TREE_TEXTURE;
-                    break;
-                case TUNNEL_ID:
-                    id_texture = TUNNEL_TEXTURE;
-                    break;
-                case FLOOR_ID:
-                    id_texture = FLOOR_TEXTURE;
-                    break;
-                case FLOOR2_ID:
-                    id_texture = FLOOR_TEXTURE;
-                    break;
-                case RIVER_ID:
-                    id_texture = RIVER_TEXTURE;
-                    break;
-                case SIGNAL1_ID:
-                    id_texture = SIGN1_TEXTURE;
-                    break;
-                case SIGNAL2_ID:
-                    id_texture = SIGN2_TEXTURE;
-                    break;
+            switch(type)
+            {
+            case PLATFORM_ID:
+                id_texture = FLOOR_TEXTURE;
+                break;
+            case MOUNTAINS_ID:
+                id_texture = MOUNTAIN_TEXTURE;
+                break;
+            case TREES_ID:
+                id_texture = TREE_TEXTURE;
+                break;
+            case TUNNEL_ID:
+                id_texture = TUNNEL_TEXTURE;
+                break;
+            case FLOOR_ID:
+                id_texture = FLOOR_TEXTURE;
+                break;
+            case FLOOR2_ID:
+                id_texture = FLOOR_TEXTURE;
+                break;
+            case RIVER_ID:
+                id_texture = RIVER_TEXTURE;
+                break;
+            case SIGNAL1_ID:
+                id_texture = SIGN1_TEXTURE;
+                break;
+            case SIGNAL2_ID:
+                id_texture = SIGN2_TEXTURE;
+                break;
             }
 
             glBindTexture(GL_TEXTURE_2D, scene.textures[id_texture]);
@@ -440,6 +442,123 @@ void __fastcall TPrimitive::Render(int selection, bool reflex)
     } // switch
 
 }
+
+
+void __fastcall TPrimitive::RenderGrey()
+{
+    glm::mat4   modelMatrix;
+    glm::mat4   modelViewMatrix;
+
+    // render only cars
+    switch(type)
+    {
+    case CAR_ID:
+    {
+        if (scene.show_car)
+        {
+            // associate vertex and its normals
+            glVertexAttribPointer(scene.aPositionLocationPick, POSITION_COMPONENT_COUNT, GL_FLOAT, false, STRIDE, model0);
+
+            // Matrix model calculation
+            modelMatrix     = glm::mat4(1.0f); // identity matrix
+            modelMatrix     = glm::translate(modelMatrix,glm::vec3(tx, ty+chasis_y_offset, tz));
+            modelMatrix     = glm::rotate(modelMatrix, (float) glm::radians(ry), glm::vec3(0,1,0));
+
+            modelViewMatrix = scene.viewMatrix * modelMatrix;
+
+            // send ModelView to Vertex Shader
+            glUniformMatrix4fv(scene.uMVMatrixLocationPick, 1, GL_FALSE, &modelViewMatrix[0][0]);
+
+            //send shader gray tone and draw
+            if(ID == 1)                         // If id car = car1 id
+                glUniform1i(scene.uColorLocationPick, 120);
+            else if(ID == 2)                    // Else if id car = car2 id
+                glUniform1i(scene.uColorLocationPick, 50);
+
+            glDrawArrays(GL_TRIANGLES, 0, num_vertex0);
+        }
+
+        if (scene.show_wheels)
+        {
+            // associate vertex and its normals
+            glVertexAttribPointer(scene.aPositionLocationPick, POSITION_COMPONENT_COUNT, GL_FLOAT, false, STRIDE, model1);
+
+            // TOP RIGHT WHEEL : Matrix model calculation
+            modelMatrix     = glm::mat4(1.0f); // identity matrix
+
+            modelMatrix     = glm::translate(modelMatrix, glm::vec3(tx, ty, tz));
+            modelMatrix     = glm::translate(modelMatrix, glm::vec3(cos(PI/180 * ry)* x_right + sin(PI/180 * ry)*zdistance, 0, cos(PI/180 * ry) * zdistance + sin(PI/180 * ry) * -x_right));
+            modelMatrix     = glm::rotate(modelMatrix, (float) glm::radians(ry), glm::vec3(0,1,0));      // radians
+            modelMatrix     = glm::rotate(modelMatrix, (float) glm::radians(turnAngle), glm::vec3(0,1,0));
+            modelMatrix     = glm::rotate(modelMatrix, (float) glm::radians(rr), glm::vec3(1,0,0));      // radians
+
+            modelViewMatrix = scene.viewMatrix * modelMatrix;
+
+            // send ModelView to Vertex Shader
+            glUniformMatrix4fv(scene.uMVMatrixLocationPick, 1, GL_FALSE, &modelViewMatrix[0][0]);
+
+            //send shader gray tone and draw
+            if(ID == 1)                         // If id car = car1 id
+                glUniform1i(scene.uColorLocationPick, 120);
+            else if(ID == 2)                    // Else if id car = car2 id
+                glUniform1i(scene.uColorLocationPick, 50);
+            glDrawArrays(GL_TRIANGLES, 0, num_vertex1);
+
+
+            // associate vertex and its normals
+            glVertexAttribPointer(scene.aPositionLocationPick, POSITION_COMPONENT_COUNT, GL_FLOAT, false, STRIDE, model1);
+
+            // TOP LEFT WHEEL : Matrix model calculation
+            modelMatrix     = glm::mat4(1.0f); // identity matrix
+            modelMatrix     = glm::translate(modelMatrix, glm::vec3(tx, ty, tz));
+            modelMatrix     = glm::translate(modelMatrix, glm::vec3(cos(PI/180 * ry)* -x_right + sin(PI/180 * ry)*zdistance, 0, cos(PI/180 * ry) * zdistance + sin(PI/180 * ry) * x_right));
+            modelMatrix     = glm::rotate(modelMatrix, (float) glm::radians(ry), glm::vec3(0,1,0));      // radians
+            modelMatrix     = glm::rotate(modelMatrix, (float) glm::radians(turnAngle), glm::vec3(0,1,0));
+            modelMatrix     = glm::rotate(modelMatrix, (float) glm::radians(rr), glm::vec3(1,0,0));
+            modelMatrix     = glm::rotate(modelMatrix, (float) glm::radians(180.0), glm::vec3(0,0,1));   // radians
+
+            modelViewMatrix = scene.viewMatrix * modelMatrix;
+
+            // send ModelView to Vertex Shader
+            glUniformMatrix4fv(scene.uMVMatrixLocationPick, 1, GL_FALSE, &modelViewMatrix[0][0]);
+            glDrawArrays(GL_TRIANGLES, 0, num_vertex1);
+
+
+            // associate vertex and its normals
+            glVertexAttribPointer(scene.aPositionLocationPick, POSITION_COMPONENT_COUNT, GL_FLOAT, false, STRIDE, model1);
+
+            // BOT LEFT WHEEL: Matrix model calculation
+            modelMatrix     = glm::mat4(1.0f); // identity matrix
+            modelMatrix     = glm::translate(modelMatrix, glm::vec3(tx + x_right * cos(PI/180 * ry), ty, tz - x_right * sin(PI/180 * ry)));
+            modelMatrix     = glm::rotate(modelMatrix, (float) glm::radians(ry), glm::vec3(0,1,0));      // radians
+            modelMatrix     = glm::rotate(modelMatrix, (float) glm::radians(rr), glm::vec3(1,0,0));      // radians
+
+            modelViewMatrix = scene.viewMatrix * modelMatrix;
+
+            // send ModelView to Vertex Shader
+            glUniformMatrix4fv(scene.uMVMatrixLocationPick, 1, GL_FALSE, &modelViewMatrix[0][0]);
+            glDrawArrays(GL_TRIANGLES, 0, num_vertex1);
+
+            // associate vertex and its normals
+            glVertexAttribPointer(scene.aPositionLocationPick, POSITION_COMPONENT_COUNT, GL_FLOAT, false, STRIDE, model1);
+
+            // BOT RIGHT WHEEL: Matrix model calculation
+            modelMatrix     = glm::mat4(1.0f); // identity matrix
+            modelMatrix     = glm::translate(modelMatrix, glm::vec3(tx - x_right * cos(PI/180 * ry), ty, tz + x_right * sin(PI/180 * ry)));
+            modelMatrix     = glm::rotate(modelMatrix, (float) glm::radians(ry), glm::vec3(0,1,0));      // radians
+            modelMatrix     = glm::rotate(modelMatrix, (float) glm::radians(rr), glm::vec3(1,0,0));
+            modelMatrix     = glm::rotate(modelMatrix, (float) glm::radians(180.0), glm::vec3(0,0,1));   // radians
+            modelViewMatrix = scene.viewMatrix * modelMatrix;
+
+            // send ModelView to Vertex Shader
+            glUniformMatrix4fv(scene.uMVMatrixLocationPick, 1, GL_FALSE, &modelViewMatrix[0][0]);
+            glDrawArrays(GL_TRIANGLES, 0, num_vertex1);
+            break;
+        }
+    }
+    }
+}
+
 
 //************************************************************** Clase TScene
 
@@ -511,24 +630,25 @@ void __fastcall TScene::InitGL()
 
     Shader shader;
 
+    //main program
     std::vector<GLuint> shaders;
     shaders.push_back(shader.LoadShader("../../Shaders/VertexShader.glsl", GL_VERTEX_SHADER));
-    //std::cout << "Vertex Shader: " << shader.ReturnShaderID() << std::endl;
     shaders.push_back(shader.LoadShader("../../Shaders/FragmentShader.glsl", GL_FRAGMENT_SHADER));
-    //std::cout << "Fragment Shader: " << shader.ReturnShaderID() << std::endl;
     shaderProgram = new Program(shaders);
 
+    //std::cout << "Vertex Shader: " << shader.ReturnShaderID() << std::endl;
+    //std::cout << "Fragment Shader: " << shader.ReturnShaderID() << std::endl;
     //std::cout << "Shader Program: " << shaderProgram->ReturnProgramID() << std::endl;
 
     glUseProgram(shaderProgram->ReturnProgramID());
     //glValidateProgram(shaderProgram->ReturnProgramID());
 
+    // link scene variables to shader Attribute
     aPositionLocation=shaderProgram->attrib(A_POSITION);
     aNormalLocation=shaderProgram->attrib(A_NORMAL);
-
-    // link scene variable to shader A_UV Attribute
     aUVLocation=shaderProgram->attrib(A_UV);
 
+    // Get uniforms locations
     uProjectionMatrixLocation=shaderProgram->uniform(U_PROJECTIONMATRIX);
     uMVMatrixLocation=shaderProgram->uniform(U_MVMATRIX);
     uVMatrixLocation=shaderProgram->uniform(U_VMATRIX);
@@ -538,30 +658,50 @@ void __fastcall TScene::InitGL()
 
     // initialize scene uniform from shader value
     uTextureUnitLocation=shaderProgram->uniform(U_TEXTUREUNITLOCATION);
-
     uLuz0Location=shaderProgram->uniform(U_LUZ0);
 
-    /*
-    std::cout << "a_Position Location: " << aPositionLocation << std::endl;
-    std::cout << "a_Normal Location: " << aNormalLocation << std::endl;
+    //std::cout << "a_Position Location: " << aPositionLocation << std::endl;
+    //std::cout << "a_Normal Location: " << aNormalLocation << std::endl;
+    //std::cout << "u_ProjectionMatrix Location: " << uProjectionMatrixLocation << std::endl;
+    //std::cout << "u_MVMatrix Location: " << uMVMatrixLocation << std::endl;
+    //std::cout << "u_VMatrix Location: " << uVMatrixLocation << std::endl;
+    //std::cout << "u_Color Location: " << uColorLocation << std::endl;
+    //std::cout << "u_Luz0 Location: " << uLuz0Location << std::endl;
 
-    std::cout << "u_ProjectionMatrix Location: " << uProjectionMatrixLocation << std::endl;
-    std::cout << "u_MVMatrix Location: " << uMVMatrixLocation << std::endl;
-    std::cout << "u_VMatrix Location: " << uVMatrixLocation << std::endl;
-    std::cout << "u_Color Location: " << uColorLocation << std::endl;
-    std::cout << "u_Luz0 Location: " << uLuz0Location << std::endl;
-    */
 
     // Enable attributes pass
     glEnableVertexAttribArray(aPositionLocation);
     glEnableVertexAttribArray(aNormalLocation);
     glEnableVertexAttribArray(aUVLocation);
 
+    // load second shader
+    std::vector<GLuint> shaders2;
+    shaders2.push_back(shader.LoadShader("../../Shaders/VertexShaderGrey.glsl", GL_VERTEX_SHADER));
+    shaders2.push_back(shader.LoadShader("../../Shaders/FragmentShaderGrey.glsl", GL_FRAGMENT_SHADER));
+    shaderGreyProgram = new Program(shaders2);
+
+    //change to gray scale render program
+    glUseProgram(shaderGreyProgram->ReturnProgramID());
+
+    // Get uniforms locations
+    aPositionLocationPick           =shaderGreyProgram->attrib(A_POSITION);
+    uProjectionMatrixLocationPick   =shaderGreyProgram->uniform(U_PROJECTIONMATRIX);
+    uMVMatrixLocationPick           =shaderGreyProgram->uniform(U_MVMATRIX);
+    uColorLocationPick              =shaderGreyProgram->uniform(U_COLOR);
+
+    // Enable attributes pass
+    glEnableVertexAttribArray(aPositionLocationPick);
+
+
     // Establishing projective perspective matrix
     GLUI_Master.get_viewport_area( &tx, &ty, &tw, &th );
     xy_aspect = (float)tw / (float)th;
     projectionMatrix = glm::perspective(45.0f, xy_aspect, 0.1f, 1000.0f);
     glUniformMatrix4fv(uProjectionMatrixLocation, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
+    glUniformMatrix4fv(uProjectionMatrixLocationPick, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
+
+    //reactivate shader program
+    glUseProgram(shaderProgram->ReturnProgramID());
 
     //Loading textures
     glGenTextures(11, textures);
@@ -704,6 +844,100 @@ void __fastcall TScene::Render()
         {
             scene.actual_camera = 0;
             gui.cam_sel = 0;
+            gui.cameraSelection->set_int_val(0);
+            gui.cameraSelection->redraw();
+        }
+    }
+
+    // Top view camera
+    else if (scene.actual_camera == 2)
+    {
+        // block movement
+        gui.enable_panel2 = 0;
+
+        TPrimitive *car = GetCar(selection);
+
+        if (car != 0)
+        {
+
+            glm::vec3 carPosition = glm::vec3(car->tx, car->ty, car->tz);
+            glm::vec3 cameraPosition = glm::vec3(car->tx, car->ty + 15, car->tz-1);
+            glm::vec3 up = glm::vec3(0,1,0);
+
+            // get look at matrix
+            viewMatrix = glm::lookAt(cameraPosition, carPosition, up);
+        }
+        else
+        {
+            scene.actual_camera = 0;
+            gui.cam_sel = 0;
+            gui.cameraSelection->set_int_val(0);
+            gui.cameraSelection->redraw();
+        }
+    }
+
+    glUniform1i(uLuz0Location, gui.light0_enabled);
+    glUniformMatrix4fv(uVMatrixLocation, 1, GL_FALSE, glm::value_ptr(viewMatrix)); // Para la luz matrix view pero sin escalado!
+
+    // draw road and objects
+    RenderObjects(selection);
+
+    // draw objects
+    RenderCars(selection);
+
+    glutSwapBuffers();
+}
+
+void __fastcall TScene::RenderPick()
+{
+    glm::mat4 rotateMatrix;
+
+    glClearColor(0.0, 0.7, 0.9, 1.0);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+    // Free camera
+    if(scene.actual_camera == 0)
+    {
+        gui.enable_panel2 = 1;
+
+        viewMatrix      = actual_view;
+        rotateMatrix    = glm::make_mat4(view_rotate);
+        viewMatrix      = glm::translate(viewMatrix,glm::vec3(view_position[0], view_position[1], view_position[2]));
+        viewMatrix      = viewMatrix*rotateMatrix;
+        viewMatrix      = glm::scale(viewMatrix,glm::vec3(scale, scale, scale));
+    }
+
+    // Chasing car camera
+    else if (scene.actual_camera == 1)
+    {
+        // block movement
+        gui.enable_panel2 = 0;
+
+        TPrimitive* car = GetCar(selection);
+
+        if(car!=0)
+        {
+            glm::vec3 carPosition = glm::vec3(car->tx, car->ty, car->tz);
+
+            float distance = -3.0;                                      // z and x distance from car
+            float height = 1.5;                                         // y distance from car
+            uint16_t angle = car->dirAngle.getAlpha();                  // angle of rotation of car
+            float camX = car->tx + (distance * sin((PI/180)*angle));
+            float camY = car->ty + height;
+            float camZ = car->tz + (distance * cos((PI/180)*angle));
+            glm::vec3 cameraPosition = glm::vec3(camX, camY, camZ);     //new position vector of camera
+
+            // get look at matrix
+            viewMatrix      = glm::lookAt(cameraPosition, carPosition, glm::vec3(0,1,0));
+            rotateMatrix    = glm::make_mat4(view_rotate);
+            viewMatrix      *= rotateMatrix;
+
+        }
+        else
+        {
+            scene.actual_camera = 0;
+            gui.cam_sel = 0;
         }
     }
 
@@ -723,21 +957,58 @@ void __fastcall TScene::Render()
         viewMatrix = glm::lookAt(cameraPosition, carPosition, up);
     }
 
-    glUniform1i(uLuz0Location, gui.light0_enabled);
-    glUniformMatrix4fv(uVMatrixLocation, 1, GL_FALSE, glm::value_ptr(viewMatrix)); // Para la luz matrix view pero sin escalado!
+    // draw Cars
+    for (int i=0; i<num_cars; i++)
+    {
+        cars[i]->RenderGrey();
+    }
 
-    // draw road and objects
-    RenderObjects(selection);
-
-    // draw objects
-    RenderCars(selection);
-
-    glutSwapBuffers();
+    //glutSwapBuffers();
 }
 
 // Selects a object through mouse
 void __fastcall TScene::Pick3D(int mouse_x, int mouse_y)
 {
+    unsigned char pixelData[4];
+    GLint viewport[4];
+
+    glUseProgram(shaderGreyProgram->ReturnProgramID());
+
+    RenderPick();
+
+    glGetIntegerv(GL_VIEWPORT, viewport);
+    mouse_y -= 70;
+    glReadPixels(mouse_x, viewport[3] - mouse_y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, &pixelData);
+
+    //std::cout<< "x: " << mouse_x << " y: " << mouse_y <<" pixel: " << pixelData[0] << pixelData[2] << std::endl;
+
+    switch(pixelData[0])
+    {
+    case 'x':
+        //selected car 1
+        scene.selection = 1;
+        gui.carSelection->set_int_val(1);
+        gui.carSelection->redraw();
+        break;
+
+    case '2':
+        //selected car 2
+        scene.selection = 2;
+        gui.carSelection->set_int_val(2);
+        gui.carSelection->redraw();
+        break;
+
+    default:
+        // not selected anything
+        scene.selection = 0;
+        gui.carSelection->set_int_val(0);
+        gui.carSelection->redraw();
+        break;
+    }
+
+    //std::cout<< "Selected car: " << scene.selection << " PixelData: " << pixelData[0] << std::endl;
+    glUseProgram(shaderProgram->ReturnProgramID());
+
 }
 
 //************************************************************** Class TGui
@@ -778,10 +1049,10 @@ void __fastcall TGui::Init(int main_window)
 
     // Añade un panel con texto con el valor de la selección
     GLUI_Panel *panel0 = new GLUI_Panel(glui, "Selection");
-    GLUI_RadioGroup *radioGroup = new GLUI_RadioGroup(panel0, &sel, SEL_ID, controlCallback);
-    glui->add_radiobutton_to_group(radioGroup, "NONE");
-    glui->add_radiobutton_to_group(radioGroup, "CAR 1");
-    glui->add_radiobutton_to_group(radioGroup, "CAR 2");
+    carSelection = new GLUI_RadioGroup(panel0, &sel, SEL_ID, controlCallback);
+    glui->add_radiobutton_to_group(carSelection, "NONE");
+    glui->add_radiobutton_to_group(carSelection, "CAR 1");
+    glui->add_radiobutton_to_group(carSelection, "CAR 2");
 
     // Adds a separation
     new GLUI_StaticText( glui, "" );
@@ -840,10 +1111,10 @@ void __fastcall TGui::Init(int main_window)
 
     GLUI_Rollout *roll_cameras = new GLUI_Rollout(glui, "Cameras", true );
 
-    GLUI_RadioGroup *camRadioGroup = new GLUI_RadioGroup(roll_cameras, &cam_sel, SEL_CAM_ID, controlCallback);
-    glui->add_radiobutton_to_group(camRadioGroup, "Free Camera");
-    glui->add_radiobutton_to_group(camRadioGroup, "Chase Camera");
-    glui->add_radiobutton_to_group(camRadioGroup, "Top view Camera");
+    cameraSelection= new GLUI_RadioGroup(roll_cameras, &cam_sel, SEL_CAM_ID, controlCallback);
+    glui->add_radiobutton_to_group(cameraSelection, "Free Camera");
+    glui->add_radiobutton_to_group(cameraSelection, "Chase Camera");
+    glui->add_radiobutton_to_group(cameraSelection, "Top view Camera");
 
 
     // Añade una separación

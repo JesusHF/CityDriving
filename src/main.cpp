@@ -55,35 +55,39 @@ void updateCar()
     {
         TPrimitive *car = scene.GetCar(scene.selection);
 
-        if(keys['w'])    // Car goes straight
+        if (car != NULL)
         {
-            car->rr+=8;
-            car->dirAngle+=car->turnAngle;
-            car->tx += speed * sin((PI/180)*car->dirAngle.getAlpha());
-            car->tz += speed * cos((PI/180)*car->dirAngle.getAlpha());
-            car->turnAngle = 0;
-            car->ry = car->dirAngle.getAlpha();
+
+            if(keys['w'])    // Car goes straight
+            {
+                car->rr+=8;
+                car->dirAngle+=car->turnAngle;
+                car->tx += speed * sin((PI/180)*car->dirAngle.getAlpha());
+                car->tz += speed * cos((PI/180)*car->dirAngle.getAlpha());
+                car->turnAngle = 0;
+                car->ry = car->dirAngle.getAlpha();
+            }
+            else if(keys['s'])
+            {
+                car->rr-=8;
+                car->dirAngle-=car->turnAngle;
+                car->tx -= speed * sin((PI/180)*car->dirAngle.getAlpha());
+                car->tz -= speed * cos((PI/180)*car->dirAngle.getAlpha());
+                car->turnAngle = 0;
+                car->ry = car->dirAngle.getAlpha();
+            }
+            if (keys['d'])            // Car goes straight
+            {
+                if(car->turnAngle > -50)
+                    car->turnAngle-=5;
+            }
+            else if(keys['a'])       // Car goes back
+            {
+                if(car->turnAngle < 50)
+                    car->turnAngle+=5;
+            }
+            //std::cout<<"Tangle: "<<car->turnAngle<<" Dangle: "<<car->dirAngle.getAlpha()<<" x: "<<car->tx<<" y: "<<car->tz<<" "<<std::endl;
         }
-        else if(keys['s'])
-        {
-            car->rr-=8;
-            car->dirAngle-=car->turnAngle;
-            car->tx -= speed * sin((PI/180)*car->dirAngle.getAlpha());
-            car->tz -= speed * cos((PI/180)*car->dirAngle.getAlpha());
-            car->turnAngle = 0;
-            car->ry = car->dirAngle.getAlpha();
-        }
-        if (keys['d'])            // Car goes straight
-        {
-            if(car->turnAngle > -50)
-                car->turnAngle-=5;
-        }
-        else if(keys['a'])       // Car goes back
-        {
-            if(car->turnAngle < 50)
-                car->turnAngle+=5;
-        }
-        //std::cout<<"Tangle: "<<car->turnAngle<<" Dangle: "<<car->dirAngle.getAlpha()<<" x: "<<car->tx<<" y: "<<car->tz<<" "<<std::endl;
     }
 }
 
@@ -176,7 +180,7 @@ int main(int argc, char* argv[])
     GLUI_Master.set_glutIdleFunc( Idle );
 
     // Create objects
-    int object_id = 0;
+    int object_id = 1;
     TPrimitive *car1        = new TPrimitive(object_id++, CAR_ID);
     TPrimitive *car2        = new TPrimitive(object_id++, CAR_ID);
     car1->tx += 3;
@@ -192,7 +196,6 @@ int main(int argc, char* argv[])
     TPrimitive *bollards    = new TPrimitive(object_id++, BOLLARDS_ID);
     TPrimitive *signall     = new TPrimitive(object_id++, SIGNAL1_ID);
     TPrimitive *signal2     = new TPrimitive(object_id++, SIGNAL2_ID);
-
 
     scene.AddCar(car1);
     scene.AddCar(car2);

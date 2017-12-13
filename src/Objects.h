@@ -196,6 +196,7 @@ public: // Class attributes
 public: // Methods
     TPrimitive(int DL, int type);
     void __fastcall Render(int selection, bool reflex=false);
+    void __fastcall RenderGrey();
 };
 
 //************************************************************** TScene Class
@@ -227,10 +228,16 @@ public: // Class attributes
 
     int uLuz0Location;
 
+    int aPositionLocationPick;
+    int uProjectionMatrixLocationPick;
+    int uMVMatrixLocationPick;
+    int uColorLocationPick;
+
     glm::mat4 projectionMatrix; // Stores Projection matrix
     glm::mat4 viewMatrix;       // Stores View matrix (camera)
 
     Program  *shaderProgram;    // Stores OpenGL program (ShaderProgram)
+    Program  *shaderGreyProgram;    // Stores OpenGL program (ShaderProgram)
 
     // Lights and materials vectors
     GLfloat light0_ambient[4];
@@ -273,6 +280,7 @@ public: // Methods
 
     void __fastcall InitGL();
     void __fastcall Render();
+    void __fastcall RenderPick();
     void __fastcall RenderCars(bool reflex=false);
     void __fastcall RenderObjects(bool reflex=false);
 
@@ -284,11 +292,9 @@ public: // Methods
 
     void __fastcall Pick3D(int mouse_x, int mouse_y);
 
-
 };
 
 //************************************************************** Class TGui
-
 class TGui
 {
 public:
@@ -311,6 +317,9 @@ public:
     GLUI_RadioGroup *radio;
     GLUI_Panel      *obj_panel;
     GLUI_Rotation   *view_rot;
+
+    GLUI_RadioGroup *carSelection;
+    GLUI_RadioGroup *cameraSelection;
 
 public:
     TGui();
