@@ -644,7 +644,18 @@ void __fastcall TScene::InitGL()
 
     // initialize scene uniform from shader value
     uTextureUnitLocation=shaderProgram->uniform(U_TEXTUREUNITLOCATION);
-    uLuz0Location=shaderProgram->uniform(U_LUZ0);
+    // LIGHT SHADERS LOCATIONS
+    uLuz0Location           =shaderProgram->uniform(U_LUZ0);
+    uLuz0PositionLocation   =shaderProgram->uniform(U_LUZ0POSITION);
+    uLuz0IntensityLocation  =shaderProgram->uniform(U_LUZ0INTENSITY);
+
+    uLuz1Location           =shaderProgram->uniform(U_LUZ1);
+    uLuz1PositionLocation   =shaderProgram->uniform(U_LUZ1POSITION);
+    uLuz1IntensityLocation  =shaderProgram->uniform(U_LUZ1INTENSITY);
+
+    uLuz2Location           =shaderProgram->uniform(U_LUZ2);
+    uLuz2PositionLocation   =shaderProgram->uniform(U_LUZ2POSITION);
+    uLuz2IntensityLocation  =shaderProgram->uniform(U_LUZ2INTENSITY);
 
     //std::cout << "a_Position Location: " << aPositionLocation << std::endl;
     //std::cout << "a_Normal Location: " << aNormalLocation << std::endl;
@@ -685,6 +696,14 @@ void __fastcall TScene::InitGL()
     projectionMatrix = glm::perspective(45.0f, xy_aspect, 0.1f, 1000.0f);
     glUniformMatrix4fv(uProjectionMatrixLocation, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
     glUniformMatrix4fv(uProjectionMatrixLocationPick, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
+
+    // send shader uniforms
+    glUniformMatrix4fv(uLuz0PositionLocation, 1, GL_FALSE, gui.light0_position);
+    glUniform1f(uLuz0IntensityLocation, (float)gui.light0_intensity);
+    glUniformMatrix4fv(uLuz1PositionLocation, 1, GL_FALSE, gui.light1_position);
+    glUniform1f(uLuz1IntensityLocation, (float)gui.light1_intensity);
+    glUniformMatrix4fv(uLuz2PositionLocation, 1, GL_FALSE, gui.light2_position);
+    glUniform1f(uLuz2IntensityLocation, (float)gui.light2_intensity);
 
     //reactivate shader program
     glUseProgram(shaderProgram->ReturnProgramID());
@@ -812,8 +831,6 @@ void __fastcall TScene::Render()
         {
             glm::vec3 carPosition = glm::vec3(car->tx, car->ty, car->tz);
 
-            float distance = -3.0;                                      // z and x distance from car
-            float height = 1.5;                                         // y distance from car
             float distance = -4;                                      // z and x distance from car
             float height = 2;                                         // y distance from car
             uint16_t angle = car->dirAngle.getAlpha();                  // angle of rotation of car
@@ -865,7 +882,9 @@ void __fastcall TScene::Render()
     }
 
     glUniform1i(uLuz0Location, gui.light0_enabled);
-    glUniformMatrix4fv(uVMatrixLocation, 1, GL_FALSE, glm::value_ptr(viewMatrix)); // Para la luz matrix view pero sin escalado!
+    glUniform1i(uLuz1Location, gui.light1_enabled);
+    glUniform1i(uLuz2Location, gui.light2_enabled);
+    glUniformMatrix4fv( uVMatrixLocation, 1, GL_FALSE, glm::value_ptr(viewMatrix));  // Para la luz matrix view pero sin escalado!
 
     // draw road and objects
     RenderObjects(selection);
@@ -1102,10 +1121,8 @@ void __fastcall TGui::Init(int main_window)
 
     // light 2
     new GLUI_Checkbox( light2, "Turned ON", &light2_enabled, LIGHT2_ENABLED_ID, controlCallback );
-    light1_spinner = new GLUI_Spinner( light2, "Intensity:", &light2_intensity,
     light2_spinner = new GLUI_Spinner( light2, "Intensity:", &light2_intensity,
                                        LIGHT2_INTENSITY_ID, controlCallback );
-    light1_spinner->set_float_limits( 0.0, 1.0 );
     light2_spinner->set_float_limits( 0.0, 1.0 );
     sb = new GLUI_Scrollbar( light2, "X",GLUI_SCROLL_HORIZONTAL,
                              &scene.light2_position[0],LIGHT2_POSITION_ID,controlCallback);
@@ -1236,11 +1253,12 @@ void __fastcall TGui::ControlCallback( int control )
         v[0] *= light0_intensity;
         v[1] *= light0_intensity;
         v[2] *= light0_intensity;
+
+        glUniform1f(scene.uLuz0IntensityLocation, v[0]);
         break;
     }
     case LIGHT1_INTENSITY_ID:
     {
-
         float v[] =
         {
             scene.light1_diffuse[0],  scene.light1_diffuse[1],
@@ -1250,6 +1268,35 @@ void __fastcall TGui::ControlCallback( int control )
         v[0] *= light1_intensity;
         v[1] *= light1_intensity;
         v[2] *= light1_intensity;
+
+        glUniform1f(scene.uLuz1IntensityLocation, v[0]);
+        break;
+    }
+    case LIGHT2_INTENSITY_ID:
+    {
+        float v[] =
+        {
+            scene.light2_diffuse[0],  scene.light2_diffuse[1],
+            scene.light2_diffuse[2],  scene.light2_diffuse[3]
+        };
+
+        v[0] *= light2_intensity;
+        v[1] *= light2_intensity;
+        v[2] *= light2_intensity;
+
+        glUniform1f(scene.uLuz2IntensityLocation, v[0]);
+        break;
+    }
+    case LIGHT0_POSITION_ID: {
+        glUniformMatrix4fv(scene.uLuz0PositionLocation, 1, GL_FALSE, scene.light0_position);
+        break;
+    }
+    case LIGHT1_POSITION_ID: {
+        glUniformMatrix4fv(scene.uLuz1PositionLocation, 1, GL_FALSE, scene.light1_position);
+        break;
+    }
+    case LIGHT2_POSITION_ID: {
+        glUniformMatrix4fv(scene.uLuz2PositionLocation, 1, GL_FALSE, scene.light2_position);
         break;
     }
     case ENABLE_ID:

@@ -82,7 +82,19 @@
 #define U_COLOR                 "u_Color"
 #define U_TEXTUREUNITLOCATION   "u_TextureUnit"
 
+//light uniform variables from shader
 #define U_LUZ0                  "u_Luz0"
+#define U_LUZ0POSITION          "u_Luz0Position"
+#define U_LUZ0INTENSITY         "u_Luz0Intensidad"
+
+#define U_LUZ1                  "u_Luz1"
+#define U_LUZ1POSITION          "u_Luz1Position"
+#define U_LUZ1INTENSITY         "u_Luz1Intensidad"
+
+#define U_LUZ2                  "u_Luz2"
+#define U_LUZ2POSITION          "u_Luz2Position"
+#define U_LUZ2INTENSITY         "u_Luz2Intensidad"
+
 #define PI 3.14159265359
 
 
@@ -227,11 +239,21 @@ public: // Class attributes
     int aUVLocation;
     int uProjectionMatrixLocation;
     int uMVMatrixLocation;
+
     int uVMatrixLocation;
+
     int uColorLocation;
     int uTextureUnitLocation;
 
     int uLuz0Location;
+    int uLuz0PositionLocation;
+    int uLuz0IntensityLocation;
+    int uLuz1Location;
+    int uLuz1PositionLocation;
+    int uLuz1IntensityLocation;
+    int uLuz2Location;
+    int uLuz2PositionLocation;
+    int uLuz2IntensityLocation;
 
     int aPositionLocationPick;
     int uProjectionMatrixLocationPick;
@@ -327,6 +349,7 @@ public:
     GLUI            *glui, *glui2;
     GLUI_Spinner    *light0_spinner;
     GLUI_Spinner    *light1_spinner;
+    GLUI_Spinner    *light2_spinner;
     GLUI_RadioGroup *radio;
     GLUI_Panel      *obj_panel;
     GLUI_Rotation   *view_rot;
