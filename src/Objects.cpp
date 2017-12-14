@@ -54,12 +54,12 @@ GLfloat light0_position_c[4] = {-100.0f, 100.0f, 50.0f, 1.0f };
 GLfloat light1_ambient_c[4]  = {   0.2f,   0.2f,  0.2f, 1.0f };
 GLfloat light1_diffuse_c[4]  = {   0.8f,   0.8f,  0.8f, 1.0f };
 GLfloat light1_specular_c[4] = {   1.0f,   1.0f,  1.0f, 1.0f };
-GLfloat light1_position_c[4] = {   0.0f, 100.0f,  0.0f, 1.0f };
+GLfloat light1_position_c[4] = {-100.0f, 100.0f, 50.0f, 1.0f };
 
 GLfloat light2_ambient_c[4]  = {   0.2f,   0.2f,  0.2f, 1.0f };
 GLfloat light2_diffuse_c[4]  = {   0.8f,   0.8f,  0.8f, 1.0f };
 GLfloat light2_specular_c[4] = {   1.0f,   1.0f,  1.0f, 1.0f };
-GLfloat light2_position_c[4] = {   0.0f, 100.0f,  0.0f, 1.0f };
+GLfloat light2_position_c[4] = { 100.0f, 100.0f, 50.0f, 1.0f };
 
 GLfloat mat_ambient_c[4]    = { 0.7f, 0.7f, 0.7f, 1.0f };
 GLfloat mat_diffuse_c[4]    = { 0.8f, 0.8f, 0.8f, 1.0f };
@@ -94,12 +94,13 @@ TPrimitive::TPrimitive(int DL, int t)
     rx = ry = rz = 0;
     tx = ty = tz = 0;
 
+    dirAngle = Angle(0);
+    turnAngle = 0;
+
     switch (type)
     {
     case ROAD_ID:    // Road creation
     {
-
-        memcpy(colors[0], colorsr_c, 8*sizeof(float));
         //************************ Loading 3ds models ***********************************
         // 8 floats format per vertex (x, y, z, A, B, C, u, v)
         model0 = Load3DS("../../models/carretera.3ds", &num_vertex0);
@@ -108,15 +109,9 @@ TPrimitive::TPrimitive(int DL, int t)
     }
     case CAR_ID:   // Car creation
     {
-
         tx = car_x_offset;
         ty = car_y_offset;
         tz = car_z_offset;
-
-        dirAngle = Angle(0);
-        turnAngle = 0;
-
-        memcpy(colors, colorsc_c, 8*sizeof(float));
         //************************ Loading 3ds models ***********************************
         // 8 floats format per vertex (x, y, z, A, B, C, u, v)
         model0 = Load3DS("../../models/coche_salchicha.3ds", &num_vertex0);
@@ -126,8 +121,6 @@ TPrimitive::TPrimitive(int DL, int t)
 
     case PLATFORM_ID:   // Platform
     {
-
-        memcpy(colors, colors_platf, 8*sizeof(float));
         //************************ Loading 3ds models ***********************************
         // 8 floats format per vertex (x, y, z, A, B, C, u, v)
         model0 = Load3DS("../../models/platform.3ds", &num_vertex0);
@@ -136,8 +129,6 @@ TPrimitive::TPrimitive(int DL, int t)
 
     case FLOOR_ID:   // Platform
     {
-
-        memcpy(colors, colors_floor, 8*sizeof(float));
         //************************ Loading 3ds models ***********************************
         // 8 floats format per vertex (x, y, z, A, B, C, u, v)
         model0 = Load3DS("../../models/floor.3ds", &num_vertex0);
@@ -146,8 +137,6 @@ TPrimitive::TPrimitive(int DL, int t)
 
     case FLOOR2_ID:   // Platform
     {
-
-        memcpy(colors, colors_floor, 8*sizeof(float));
         //************************ Loading 3ds models ***********************************
         // 8 floats format per vertex (x, y, z, A, B, C, u, v)
         model0 = Load3DS("../../models/floor2.3ds", &num_vertex0);
@@ -156,10 +145,6 @@ TPrimitive::TPrimitive(int DL, int t)
 
     case RIVER_ID:   // Platform
     {
-
-        tx = ty = tz = 0;
-        memcpy(colors, colors_river, 8*sizeof(float));
-
         //************************ Loading 3ds models ***********************************
         // 8 floats format per vertex (x, y, z, A, B, C, u, v)
         model0 = Load3DS("../../models/rio.3ds", &num_vertex0);
@@ -168,8 +153,6 @@ TPrimitive::TPrimitive(int DL, int t)
 
     case MOUNTAINS_ID:   // Platform
     {
-
-        memcpy(colors, colors_mount, 8*sizeof(float));
         //************************ Loading 3ds models ***********************************
         // 8 floats format per vertex (x, y, z, A, B, C, u, v)
         model0 = Load3DS("../../models/mountains.3ds", &num_vertex0);
@@ -178,8 +161,6 @@ TPrimitive::TPrimitive(int DL, int t)
 
     case TREES_ID:   // Platform
     {
-
-        memcpy(colors, colors_mount, 8*sizeof(float));
         //************************ Loading 3ds models ***********************************
         // 8 floats format per vertex (x, y, z, A, B, C, u, v)
         model0 = Load3DS("../../models/trees.3ds", &num_vertex0);
@@ -188,8 +169,6 @@ TPrimitive::TPrimitive(int DL, int t)
 
     case TUNNEL_ID:    // Road creation
     {
-
-        memcpy(colors[0], colorsr_c, 8*sizeof(float));
         //************************ Loading 3ds models ***********************************
         // 8 floats format per vertex (x, y, z, A, B, C, u, v)
         model0 = Load3DS("../../models/tunel.3ds", &num_vertex0);
@@ -199,8 +178,6 @@ TPrimitive::TPrimitive(int DL, int t)
 
     case BOLLARDS_ID:    // Road creation
     {
-
-        memcpy(colors[0], colors_floor, 8*sizeof(float));
         //************************ Loading 3ds models ***********************************
         // 8 floats format per vertex (x, y, z, A, B, C, u, v)
         model0 = Load3DS("../../models/bollards.3ds", &num_vertex0);
@@ -210,8 +187,6 @@ TPrimitive::TPrimitive(int DL, int t)
 
     case SIGNAL1_ID:    // Road creation
     {
-
-        memcpy(colors[0], colors_floor, 8*sizeof(float));
         //************************ Loading 3ds models ***********************************
         // 8 floats format per vertex (x, y, z, A, B, C, u, v)
         model0 = Load3DS("../../models/signal_sausage.3ds", &num_vertex0);
@@ -221,8 +196,6 @@ TPrimitive::TPrimitive(int DL, int t)
 
     case SIGNAL2_ID:    // Road creation
     {
-
-        memcpy(colors[0], colors_floor, 8*sizeof(float));
         //************************ Loading 3ds models ***********************************
         // 8 floats format per vertex (x, y, z, A, B, C, u, v)
         model0 = Load3DS("../../models/signal_not_sausage.3ds", &num_vertex0);
@@ -235,6 +208,9 @@ TPrimitive::TPrimitive(int DL, int t)
 
 void __fastcall TPrimitive::Render(int selection, bool reflex)
 {
+    if(scene.wireframe == 0) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    else if(scene.wireframe == 1) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
     glm::mat4   modelMatrix;
     glm::mat4   modelViewMatrix;
 
@@ -838,6 +814,8 @@ void __fastcall TScene::Render()
 
             float distance = -3.0;                                      // z and x distance from car
             float height = 1.5;                                         // y distance from car
+            float distance = -4;                                      // z and x distance from car
+            float height = 2;                                         // y distance from car
             uint16_t angle = car->dirAngle.getAlpha();                  // angle of rotation of car
             float camX = car->tx + (distance * sin((PI/180)*angle));
             float camY = car->ty + height;
@@ -1091,6 +1069,7 @@ void __fastcall TGui::Init(int main_window)
     GLUI_Panel *light1 = new GLUI_Panel( roll_lights, "Light 2" );
     GLUI_Panel *light2 = new GLUI_Panel( roll_lights, "Light 3" );
 
+    // light 0
     new GLUI_Checkbox( light0, "Turned ON", &light0_enabled, LIGHT0_ENABLED_ID, controlCallback );
     light0_spinner = new GLUI_Spinner( light0, "Intensidad:", &light0_intensity,
                                        LIGHT0_INTENSITY_ID, controlCallback );
@@ -1106,6 +1085,7 @@ void __fastcall TGui::Init(int main_window)
                              &scene.light0_position[2],LIGHT0_POSITION_ID,controlCallback);
     sb->set_float_limits(-100,100);
 
+    // light 1
     new GLUI_Checkbox( light1, "Turned ON", &light1_enabled, LIGHT1_ENABLED_ID, controlCallback );
     light1_spinner = new GLUI_Spinner( light1, "Intensity:", &light1_intensity,
                                        LIGHT1_INTENSITY_ID, controlCallback );
@@ -1120,10 +1100,13 @@ void __fastcall TGui::Init(int main_window)
                              &scene.light1_position[2],LIGHT1_POSITION_ID,controlCallback);
     sb->set_float_limits(-100,100);
 
+    // light 2
     new GLUI_Checkbox( light2, "Turned ON", &light2_enabled, LIGHT2_ENABLED_ID, controlCallback );
     light1_spinner = new GLUI_Spinner( light2, "Intensity:", &light2_intensity,
+    light2_spinner = new GLUI_Spinner( light2, "Intensity:", &light2_intensity,
                                        LIGHT2_INTENSITY_ID, controlCallback );
     light1_spinner->set_float_limits( 0.0, 1.0 );
+    light2_spinner->set_float_limits( 0.0, 1.0 );
     sb = new GLUI_Scrollbar( light2, "X",GLUI_SCROLL_HORIZONTAL,
                              &scene.light2_position[0],LIGHT2_POSITION_ID,controlCallback);
     sb->set_float_limits(-100,100);
@@ -1231,6 +1214,14 @@ void __fastcall TGui::ControlCallback( int control )
             light1_spinner->enable();
         else
             light1_spinner->disable();
+        break;
+    }
+    case LIGHT2_ENABLED_ID:
+    {
+        if ( light2_enabled )
+            light2_spinner->enable();
+        else
+            light2_spinner->disable();
         break;
     }
     case LIGHT0_INTENSITY_ID:
